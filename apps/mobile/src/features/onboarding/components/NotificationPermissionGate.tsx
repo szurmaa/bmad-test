@@ -144,15 +144,28 @@ export function NotificationPermissionGate({
       setErrorMessage(null);
 
       try {
-        const permissionStatus =
-          choice === 'allow'
-            ? await permissionService.requestPermission()
-            : await permissionService.getCurrentStatus();
+        let permissionStatus: NotificationPermissionStatus = 'undetermined';
+
+        try {
+          permissionStatus =
+            choice === 'allow'
+              ? await permissionService.requestPermission()
+              : await permissionService.getCurrentStatus();
+        } catch {
+          // Keep onboarding non-blocking if platform permission APIs fail.
+          permissionStatus = 'undetermined';
+        }
 
         const nextProfile = await profileRepository.saveNotificationDecision(choice, permissionStatus);
         setProfile(nextProfile);
       } catch {
-        setErrorMessage('We could not save that choice. Please try again.');
+        // Keep onboarding non-blocking even if local persistence fails.
+        setProfile((currentProfile) => ({
+          notificationChoice: choice,
+          notificationPermissionStatus: currentProfile?.notificationPermissionStatus ?? 'undetermined',
+          notificationPromptedAt: currentProfile?.notificationPromptedAt ?? new Date().toISOString(),
+        }));
+        setErrorMessage('We could not save that choice. We still moved you forward.');
       } finally {
         setIsSubmitting(false);
       }

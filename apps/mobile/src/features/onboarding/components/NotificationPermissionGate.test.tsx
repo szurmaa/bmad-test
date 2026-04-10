@@ -87,4 +87,62 @@ describe('NotificationPermissionGate', () => {
     expect(permissionService.requestPermission).toHaveBeenCalledTimes(1);
     expect(repository.saveNotificationDecision).toHaveBeenCalledWith('allow', 'granted');
   });
+
+  it('still advances after allow when permission request fails', async () => {
+    const repository = createRepositoryMock();
+    const permissionService: NotificationPermissionService = {
+      getCurrentStatus: jest.fn(async () => 'undetermined' as NotificationPermissionStatus),
+      requestPermission: jest.fn(async () => {
+        throw new Error('permission unavailable');
+      }),
+    };
+
+    render(
+      <NotificationPermissionGate
+        profileRepository={repository}
+        permissionService={permissionService}
+      />
+    );
+
+    expect(await screen.findByTestId('notification-step')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('allow-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('app-entry-card')).toBeTruthy();
+    });
+
+    expect(permissionService.requestPermission).toHaveBeenCalledTimes(1);
+    expect(repository.saveNotificationDecision).toHaveBeenCalledWith('allow', 'undetermined');
+  });
+
+  it('still advances when profile persistence fails', async () => {
+    const repository = createRepositoryMock();
+    repository.saveNotificationDecision = jest.fn(async () => {
+      throw new Error('write failed');
+    });
+
+    const permissionService: NotificationPermissionService = {
+      getCurrentStatus: jest.fn(async () => 'undetermined' as NotificationPermissionStatus),
+      requestPermission: jest.fn(async () => 'granted' as NotificationPermissionStatus),
+    };
+
+    render(
+      <NotificationPermissionGate
+        profileRepository={repository}
+        permissionService={permissionService}
+      />
+    );
+
+    expect(await screen.findByTestId('notification-step')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('not-now-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('app-entry-card')).toBeTruthy();
+    });
+
+    expect(permissionService.getCurrentStatus).toHaveBeenCalledTimes(1);
+    expect(repository.saveNotificationDecision).toHaveBeenCalledWith('not-now', 'undetermined');
+  });
 });
