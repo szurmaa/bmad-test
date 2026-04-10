@@ -42,6 +42,7 @@ app-example
 /ios
 /android
 
-.claude
-.cursor
-.kiro
+.claude/skills/
+.cursor/skills/
+.github/skills/
+.kiro/skills/

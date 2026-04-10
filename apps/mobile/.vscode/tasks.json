@@ -1,0 +1,35 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "install-story-1-2-deps",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"install",
+				"expo-notifications",
+				"expo-sqlite",
+				"&&",
+				"npm",
+				"install",
+				"-D",
+				"jest",
+				"jest-expo",
+				"@types/jest",
+				"@testing-library/react-native",
+				"@testing-library/jest-native",
+				"react-test-renderer",
+				"@playwright/test"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "install-story-1-2-deps",
+			"type": "shell",
+			"command": "npm install expo-notifications expo-sqlite && npm install -D jest jest-expo @types/jest @testing-library/react-native @testing-library/jest-native react-test-renderer @playwright/test",
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}
