@@ -1,0 +1,106 @@
+# generated: 2026-04-10T17:05:00Z
+# last_updated: 2026-04-10T17:22:00Z
+# project: bmad
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog -> in-progress: Automatically when first story is created (via create-story)
+#   - in-progress -> done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-04-10T17:05:00Z
+last_updated: 2026-04-10T15:10:00Z
+project: bmad
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: in-progress
+  1-1-set-up-initial-project-from-starter-template: review
+  1-2-permission-choice-without-blocking: backlog
+  1-3-complete-onboarding-in-four-taps: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-daily-roll-eligibility-and-task-selection: backlog
+  2-2-task-reveal-experience: backlog
+  2-3-task-completion-and-celebration: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-one-time-daily-reroll: backlog
+  3-2-reroll-state-messaging: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-additive-days-played-increment: backlog
+  4-2-no-streak-penalty-messaging: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-optional-post-completion-mood-prompt: backlog
+  5-2-skip-without-re-prompting: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-reminder-scheduling-and-settings: backlog
+  6-2-notification-deep-link-to-roll: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-offline-action-reliability: backlog
+  7-2-background-sync-queue-reconciliation: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-admin-crud-for-task-catalog: backlog
+  8-2-peer-review-and-publish-workflow: backlog
+  epic-8-retrospective: optional
+
+  epic-9: backlog
+  9-1-product-event-instrumentation: backlog
+  9-2-crash-reporting-and-alerting: backlog
+  epic-9-retrospective: optional
+
+  epic-10: backlog
+  10-1-screen-reader-and-semantics-compliance: backlog
+  10-2-contrast-touch-targets-and-motion-controls: backlog
+  epic-10-retrospective: optional
+
+  epic-11: backlog
+  11-1-stable-runtime-packaging-for-user-facing-services: backlog
+  11-2-predictable-multi-environment-service-availability: backlog
+  epic-11-retrospective: optional
+
+  epic-12: backlog
+  12-1-user-critical-flow-test-confidence: backlog
+  12-2-performance-and-accessibility-regression-prevention: backlog
+  12-3-security-assurance-before-release: backlog
+  epic-12-retrospective: optional
