@@ -4,7 +4,8 @@ This repository contains the Habit Dice implementation workspace with BMAD plann
 
 - Mobile app: Expo + React Native + TypeScript
 - Backend service: Node.js HTTP service with health/readiness endpoints
-- Containerized local stack: Docker Compose (mobile-web + backend + Postgres)
+- Primary app data layer: SQLite (local-first in mobile app)
+- Containerized local stack: Docker Compose (mobile-web + backend; includes optional Postgres service scaffold)
 
 ## Quick start
 
@@ -73,6 +74,8 @@ Recent QA outputs are written to:
 Key reports include coverage, performance, accessibility, and security artifacts generated during Epic 14.
 
 ## Containerized development (Docker)
+
+Note: Habit Dice currently persists core app data in SQLite on the mobile side. The Postgres container in `docker-compose.yml` was added as part of container orchestration scaffolding and is not the primary app datastore.
 
 Start development profile:
 
