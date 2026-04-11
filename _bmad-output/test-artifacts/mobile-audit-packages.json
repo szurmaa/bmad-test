@@ -1,0 +1,303 @@
+{
+  "summary": {
+    "info": 0,
+    "low": 5,
+    "moderate": 9,
+    "high": 1,
+    "critical": 0,
+    "total": 15
+  },
+  "packages": [
+    {
+      "name": "@firebase/auth",
+      "severity": "moderate",
+      "via": [
+        "undici"
+      ],
+      "fixAvailable": true
+    },
+    {
+      "name": "@firebase/auth-compat",
+      "severity": "moderate",
+      "via": [
+        "@firebase/auth",
+        "undici"
+      ],
+      "fixAvailable": true
+    },
+    {
+      "name": "@firebase/firestore",
+      "severity": "moderate",
+      "via": [
+        "undici"
+      ],
+      "fixAvailable": true
+    },
+    {
+      "name": "@firebase/firestore-compat",
+      "severity": "moderate",
+      "via": [
+        "@firebase/firestore"
+      ],
+      "fixAvailable": true
+    },
+    {
+      "name": "@firebase/functions",
+      "severity": "moderate",
+      "via": [
+        "undici"
+      ],
+      "fixAvailable": true
+    },
+    {
+      "name": "@firebase/functions-compat",
+      "severity": "moderate",
+      "via": [
+        "@firebase/functions"
+      ],
+      "fixAvailable": true
+    },
+    {
+      "name": "@firebase/storage",
+      "severity": "moderate",
+      "via": [
+        "undici"
+      ],
+      "fixAvailable": true
+    },
+    {
+      "name": "@firebase/storage-compat",
+      "severity": "moderate",
+      "via": [
+        "@firebase/storage"
+      ],
+      "fixAvailable": true
+    },
+    {
+      "name": "@tootallnate/once",
+      "severity": "low",
+      "via": [
+        {
+          "source": 1113977,
+          "name": "@tootallnate/once",
+          "dependency": "@tootallnate/once",
+          "title": "@tootallnate/once vulnerable to Incorrect Control Flow Scoping",
+          "url": "https://github.com/advisories/GHSA-vpq2-c234-7xj6",
+          "severity": "low",
+          "cwe": [
+            "CWE-705"
+          ],
+          "cvss": {
+            "score": 3.3,
+            "vectorString": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": "<3.0.1"
+        }
+      ],
+      "fixAvailable": {
+        "name": "jest-expo",
+        "version": "47.0.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "firebase",
+      "severity": "moderate",
+      "via": [
+        "@firebase/auth",
+        "@firebase/auth-compat",
+        "@firebase/firestore",
+        "@firebase/firestore-compat",
+        "@firebase/functions",
+        "@firebase/functions-compat",
+        "@firebase/storage",
+        "@firebase/storage-compat"
+      ],
+      "fixAvailable": true
+    },
+    {
+      "name": "http-proxy-agent",
+      "severity": "low",
+      "via": [
+        "@tootallnate/once"
+      ],
+      "fixAvailable": {
+        "name": "jest-expo",
+        "version": "47.0.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "jest-environment-jsdom",
+      "severity": "low",
+      "via": [
+        "jsdom"
+      ],
+      "fixAvailable": {
+        "name": "jest-expo",
+        "version": "47.0.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "jest-expo",
+      "severity": "low",
+      "via": [
+        "jest-environment-jsdom"
+      ],
+      "fixAvailable": {
+        "name": "jest-expo",
+        "version": "47.0.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "jsdom",
+      "severity": "low",
+      "via": [
+        "http-proxy-agent"
+      ],
+      "fixAvailable": {
+        "name": "jest-expo",
+        "version": "47.0.1",
+        "isSemVerMajor": true
+      }
+    },
+    {
+      "name": "undici",
+      "severity": "high",
+      "via": [
+        {
+          "source": 1101609,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Use of Insufficiently Random Values in undici",
+          "url": "https://github.com/advisories/GHSA-c76h-2ccp-4975",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-330"
+          ],
+          "cvss": {
+            "score": 6.8,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:N"
+          },
+          "range": ">=6.0.0 <6.21.1"
+        },
+        {
+          "source": 1112496,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has an unbounded decompression chain in HTTP responses on Node.js Fetch API via Content-Encoding leads to resource exhaustion",
+          "url": "https://github.com/advisories/GHSA-g9mf-h72j-4rw9",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-770"
+          ],
+          "cvss": {
+            "score": 5.9,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<6.23.0"
+        },
+        {
+          "source": 1113068,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "undici Denial of Service attack via bad certificate data",
+          "url": "https://github.com/advisories/GHSA-cxrh-j4jr-qwg3",
+          "severity": "low",
+          "cwe": [
+            "CWE-401"
+          ],
+          "cvss": {
+            "score": 3.1,
+            "vectorString": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:N/A:L"
+          },
+          "range": ">=6.0.0 <6.21.2"
+        },
+        {
+          "source": 1114592,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici: Malicious WebSocket 64-bit length overflows parser and crashes the client",
+          "url": "https://github.com/advisories/GHSA-f269-vfmq-vjvj",
+          "severity": "high",
+          "cwe": [
+            "CWE-248",
+            "CWE-1284"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": ">=6.0.0 <6.24.0"
+        },
+        {
+          "source": 1114594,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has an HTTP Request/Response Smuggling issue",
+          "url": "https://github.com/advisories/GHSA-2mjp-6q6p-2qxm",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-444"
+          ],
+          "cvss": {
+            "score": 6.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L"
+          },
+          "range": "<6.24.0"
+        },
+        {
+          "source": 1114638,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has Unbounded Memory Consumption in WebSocket permessage-deflate Decompression",
+          "url": "https://github.com/advisories/GHSA-vrm6-8vpv-qv8q",
+          "severity": "high",
+          "cwe": [
+            "CWE-409"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<6.24.0"
+        },
+        {
+          "source": 1114640,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has Unhandled Exception in WebSocket Client Due to Invalid server_max_window_bits Validation",
+          "url": "https://github.com/advisories/GHSA-v9p9-hfj2-hcw8",
+          "severity": "high",
+          "cwe": [
+            "CWE-248"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<6.24.0"
+        },
+        {
+          "source": 1114642,
+          "name": "undici",
+          "dependency": "undici",
+          "title": "Undici has CRLF Injection in undici via `upgrade` option",
+          "url": "https://github.com/advisories/GHSA-4992-7rv2-5pvq",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-93"
+          ],
+          "cvss": {
+            "score": 4.6,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:N"
+          },
+          "range": "<6.24.0"
+        }
+      ],
+      "fixAvailable": true
+    }
+  ]
+}

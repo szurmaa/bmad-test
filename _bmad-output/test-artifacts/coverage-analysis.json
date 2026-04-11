@@ -1,0 +1,92 @@
+{
+  "total": {
+    "lines": {
+      "total": 950,
+      "covered": 649,
+      "skipped": 0,
+      "pct": 68.31
+    },
+    "statements": {
+      "total": 970,
+      "covered": 655,
+      "skipped": 0,
+      "pct": 67.52
+    },
+    "functions": {
+      "total": 229,
+      "covered": 143,
+      "skipped": 0,
+      "pct": 62.44
+    },
+    "branches": {
+      "total": 658,
+      "covered": 312,
+      "skipped": 0,
+      "pct": 47.41
+    },
+    "branchesTrue": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    }
+  },
+  "lowestCoverage": [
+    {
+      "file": "apps/mobile/src/features/onboarding/repository/OnboardingProfileRepository.ts",
+      "lines": 0,
+      "branches": 100,
+      "functions": 0,
+      "statements": 0
+    },
+    {
+      "file": "apps/mobile/src/db/local-profile-storage.ts",
+      "lines": 18.42,
+      "branches": 0,
+      "functions": 0,
+      "statements": 17.5
+    },
+    {
+      "file": "apps/mobile/src/features/notifications/services/NotificationPermissionService.ts",
+      "lines": 19.51,
+      "branches": 22.85,
+      "functions": 14.28,
+      "statements": 19.51
+    },
+    {
+      "file": "apps/mobile/src/features/engagement/InAppCampaignService.ts",
+      "lines": 26.02,
+      "branches": 28.42,
+      "functions": 22.72,
+      "statements": 27.63
+    },
+    {
+      "file": "apps/mobile/src/db/schema.ts",
+      "lines": 43.56,
+      "branches": 8.1,
+      "functions": 11.53,
+      "statements": 42.3
+    },
+    {
+      "file": "apps/mobile/src/store/dailyRollStore.ts",
+      "lines": 63.63,
+      "branches": 50,
+      "functions": 47.61,
+      "statements": 59.18
+    },
+    {
+      "file": "apps/mobile/src/hooks/useInAppCampaigns.ts",
+      "lines": 66.66,
+      "branches": 45,
+      "functions": 75,
+      "statements": 65.3
+    },
+    {
+      "file": "apps/mobile/src/hooks/useReminderSettings.ts",
+      "lines": 69.73,
+      "branches": 35.29,
+      "functions": 83.33,
+      "statements": 70.12
+    }
+  ]
+}

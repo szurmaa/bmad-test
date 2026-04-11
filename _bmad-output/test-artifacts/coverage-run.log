@@ -1,0 +1,77 @@
+
+> habit-dice@1.0.0 test
+> jest --runInBand --coverage --coverageReporters=json-summary --coverageReporters=text-summary
+
+PASS src/features/settings/DataPrivacyService.test.ts
+PASS src/hooks/useUserPreferences.test.ts
+PASS src/hooks/useConnectivityStatus.test.ts
+PASS src/store/dailyRollStore.test.ts
+PASS src/hooks/useReminderSettings.test.ts
+PASS src/hooks/useInAppCampaigns.test.ts
+PASS src/features/analytics/AnalyticsService.test.ts
+PASS src/features/onboarding/components/HomeRollShell.test.tsx
+FAIL src/features/onboarding/components/OnboardingFlowGate.test.tsx
+  ● Test suite failed to run
+
+    TypeError: Cannot destructure property 'EventEmitter' of 'globalThis.expo' as it is undefined.
+
+    > 1 | import Constants from 'expo-constants';
+        | ^
+      2 |
+      3 | import { queueForSync } from '@/db/schema';
+      4 | import { evaluateCrashAlert } from '@/features/crash-reporting/CrashAlertEvaluator';
+
+      at node_modules/jest-expo/src/preset/setup.js:235:11
+      at Object.require (node_modules/expo-constants/src/Constants.ts:10:1)
+      at Object.require (src/features/crash-reporting/CrashReportingService.ts:1:1)
+      at Object.require (src/hooks/useDailyRollInit.ts:17:1)
+      at Object.require (src/features/onboarding/components/HomeRollShell.tsx:15:1)
+      at Object.require (src/features/onboarding/components/OnboardingFlowGate.tsx:15:1)
+      at Object.require (src/features/onboarding/components/OnboardingFlowGate.test.tsx:10:1)
+
+PASS src/features/onboarding/components/NotificationPermissionGate.test.tsx
+PASS src/features/onboarding/onboardingTapBudget.test.ts
+PASS src/features/admin-task-catalog/TaskCatalogService.test.ts
+PASS src/features/notifications/services/PushNotificationService.test.ts
+PASS src/features/notifications/services/NotificationPermissionService.test.ts
+PASS src/features/notifications/services/NotificationSchedulerService.test.ts
+PASS src/features/sync/SyncService.test.ts
+PASS src/features/admin-review-workflow/ReviewPublishService.test.ts
+PASS src/features/task-catalog-refresh/TaskCatalogRefreshService.test.ts
+PASS src/features/engagement/InAppCampaignService.test.ts
+PASS src/features/crash-reporting/CrashReportingService.test.ts
+PASS src/features/crash-reporting/CrashAlertEvaluator.test.ts
+
+=============================== Coverage summary ===============================
+Statements   : 67.52% ( 655/970 )
+Branches     : 47.41% ( 312/658 )
+Functions    : 62.44% ( 143/229 )
+Lines        : 68.31% ( 649/950 )
+================================================================================
+
+Summary of all failing tests
+FAIL src/features/onboarding/components/OnboardingFlowGate.test.tsx
+  ● Test suite failed to run
+
+    TypeError: Cannot destructure property 'EventEmitter' of 'globalThis.expo' as it is undefined.
+
+    > 1 | import Constants from 'expo-constants';
+        | ^
+      2 |
+      3 | import { queueForSync } from '@/db/schema';
+      4 | import { evaluateCrashAlert } from '@/features/crash-reporting/CrashAlertEvaluator';
+
+      at node_modules/jest-expo/src/preset/setup.js:235:11
+      at Object.require (node_modules/expo-constants/src/Constants.ts:10:1)
+      at Object.require (src/features/crash-reporting/CrashReportingService.ts:1:1)
+      at Object.require (src/hooks/useDailyRollInit.ts:17:1)
+      at Object.require (src/features/onboarding/components/HomeRollShell.tsx:15:1)
+      at Object.require (src/features/onboarding/components/OnboardingFlowGate.tsx:15:1)
+      at Object.require (src/features/onboarding/components/OnboardingFlowGate.test.tsx:10:1)
+
+
+Test Suites: 1 failed, 20 passed, 21 total
+Tests:       91 passed, 91 total
+Snapshots:   0 total
+Time:        2.39 s
+Ran all test suites.

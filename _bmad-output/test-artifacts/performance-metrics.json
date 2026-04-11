@@ -1,0 +1,25 @@
+{
+  "targetUrl": "http://127.0.0.1:8080",
+  "statusCode": 502,
+  "collectedAt": "2026-04-11T16:32:08.543Z",
+  "highLevel": {
+    "navigationToLoadMs": 40349,
+    "syntheticInteractionLatencyMs": 165
+  },
+  "webVitalsLike": {
+    "domContentLoadedMs": 12.100000000558794,
+    "loadEventMs": 12.300000000745058,
+    "transferSizeBytes": 332,
+    "encodedBodySizeBytes": 32,
+    "decodedBodySizeBytes": 32,
+    "firstContentfulPaintMs": 32
+  },
+  "cdpMetrics": {
+    "taskDuration": 0.150022,
+    "scriptDuration": 0,
+    "layoutDuration": 0.007892,
+    "jsHeapUsedSize": 1001808,
+    "jsHeapTotalSize": 1572864,
+    "nodes": 31
+  }
+}

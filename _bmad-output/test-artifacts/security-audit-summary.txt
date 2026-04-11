@@ -1,0 +1,26 @@
+_bmad-output/test-artifacts/mobile-npm-audit.json
+{
+  "vulnerabilities": {
+    "info": 0,
+    "low": 5,
+    "moderate": 9,
+    "high": 1,
+    "critical": 0,
+    "total": 15
+  },
+  "totalDependencies": null,
+  "error": null
+}
+_bmad-output/test-artifacts/backend-npm-audit.json
+{
+  "vulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "totalDependencies": null,
+  "error": null
+}

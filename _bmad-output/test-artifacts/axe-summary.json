@@ -1,0 +1,56 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "timestamp": "2026-04-11T16:29:19.707Z",
+  "violations": [
+    {
+      "id": "document-title",
+      "impact": "serious",
+      "count": 1,
+      "selectors": [
+        [
+          "html"
+        ]
+      ]
+    },
+    {
+      "id": "html-has-lang",
+      "impact": "serious",
+      "count": 1,
+      "selectors": [
+        [
+          "html"
+        ]
+      ]
+    },
+    {
+      "id": "landmark-one-main",
+      "impact": "moderate",
+      "count": 1,
+      "selectors": [
+        [
+          "html"
+        ]
+      ]
+    },
+    {
+      "id": "page-has-heading-one",
+      "impact": "moderate",
+      "count": 1,
+      "selectors": [
+        [
+          "html"
+        ]
+      ]
+    },
+    {
+      "id": "region",
+      "impact": "moderate",
+      "count": 1,
+      "selectors": [
+        [
+          "pre"
+        ]
+      ]
+    }
+  ]
+}

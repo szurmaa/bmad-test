@@ -14,7 +14,7 @@ const config = {
   },
   testPathIgnorePatterns: ['/node_modules/', '/e2e/'],
   transformIgnorePatterns: [
-    'node_modules/(?!(?:react-native|@react-native|expo(?:nent)?|expo-notifications|expo-modules-core|@expo|expo-router|@expo-google-fonts|react-navigation|@react-navigation|firebase)/)',
+    'node_modules/(?!(?:react-native|@react-native|expo|expo-.+|expo-modules-core|@expo|@expo-google-fonts|react-navigation|@react-navigation|firebase)/)',
   ],
 };
 

@@ -3,9 +3,9 @@ import { spawn } from "node:child_process";
 
 const GATEWAY_PORT = Number(process.env.PORT ?? 8080);
 const EXPO_PORT = Number(process.env.EXPO_PORT ?? 8081);
-const EXPO_HOST = "127.0.0.1";
+const EXPO_HOST = "localhost";
 
-const expo = spawn("npx", ["expo", "start", "--web", "--port", String(EXPO_PORT), "--host", "localhost"], {
+const expo = spawn("npx", ["expo", "start", "--web", "--port", String(EXPO_PORT), "--host", "lan"], {
   stdio: "inherit",
   env: {
     ...process.env,

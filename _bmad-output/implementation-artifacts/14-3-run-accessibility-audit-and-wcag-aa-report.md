@@ -1,6 +1,6 @@
 # Story 14.3: Run Accessibility Audit and WCAG AA Report
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -24,3 +24,15 @@ So that the application meets WCAG AA expectations.
 
 **Requested Step:** Step 4 - Accessibility Testing
 **Epic:** Epic 14 - QA Validation and Compliance Reports
+
+## Implementation Summary
+
+- Executed automated accessibility auditing via axe-core CLI.
+- Produced selector-level violation summary and WCAG AA status assessment.
+- Documented unresolved gaps with prioritized remediation actions.
+
+## Verification Evidence
+
+- Raw axe output: `_bmad-output/test-artifacts/axe-mobile-web.json`
+- Condensed summary: `_bmad-output/test-artifacts/axe-summary.json`
+- Published report: `_bmad-output/test-artifacts/accessibility-wcag-aa-report-2026-04-11.md`
