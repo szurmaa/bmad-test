@@ -1,6 +1,6 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect, Page } from '@playwright/test';
 
-test('notification permission step is non-blocking when skipped', async ({ page }) => {
+test('notification permission step is non-blocking when skipped', async ({ page }: { page: Page }) => {
   await page.goto('/');
   await page.evaluate(() => {
     localStorage.clear();
@@ -13,7 +13,7 @@ test('notification permission step is non-blocking when skipped', async ({ page 
   await expect(page.getByText('Roll for Today')).toBeVisible();
 });
 
-test('notification permission step is non-blocking when allow is chosen', async ({ page }) => {
+test('notification permission step is non-blocking when allow is chosen', async ({ page }: { page: Page }) => {
   await page.goto('/');
   await page.evaluate(() => {
     localStorage.clear();
