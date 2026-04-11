@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { format } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -37,6 +38,8 @@ export interface DailyRollStore {
   logMood: (moodValue: number) => void;
   markSyncedToFirebase: () => void;
   resetForNewDay: () => void;
+  hydrateFromDatabase: (payload: { currentRoll: DailyRoll | null; daysPlayed: number }) => void;
+  setError: (error: string | null) => void;
   loadFromStorage: () => Promise<void>;
 }
 
@@ -46,12 +49,8 @@ export interface DailyRollStore {
 const isNewDay = (lastRollDate: string | null): boolean => {
   if (!lastRollDate) return true;
 
-  const lastDate = new Date(lastRollDate);
-  const today = new Date();
-
-  // Compare date part only (YYYY-MM-DD)
-  const lastDateString = lastDate.toISOString().split('T')[0];
-  const todayString = today.toISOString().split('T')[0];
+  const lastDateString = format(new Date(lastRollDate), 'yyyy-MM-dd');
+  const todayString = format(new Date(), 'yyyy-MM-dd');
 
   return lastDateString !== todayString;
 };
@@ -75,7 +74,7 @@ export const useDailyRollStore = create<DailyRollStore>()(
         // If new day, increment days played and create new roll
         if (isNewDay(state.currentRoll?.date ?? null)) {
           const randomTask = tasks[Math.floor(Math.random() * tasks.length)];
-          const today = new Date().toISOString().split('T')[0];
+          const today = format(new Date(), 'yyyy-MM-dd');
 
           const newRoll: DailyRoll = {
             id: uuidv4(),
@@ -174,6 +173,19 @@ export const useDailyRollStore = create<DailyRollStore>()(
           isLoading: false,
           error: null,
         });
+      },
+
+      hydrateFromDatabase: ({ currentRoll, daysPlayed }) => {
+        set({
+          currentRoll,
+          daysPlayed,
+          isLoading: false,
+          error: null,
+        });
+      },
+
+      setError: (error) => {
+        set({ error });
       },
 
       loadFromStorage: async () => {

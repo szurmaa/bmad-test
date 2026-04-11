@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react';
-import useDailyRollStore from '@/store/dailyRollStore';
-import { getActiveTasks, getTodayRoll, createDailyRoll, seedTaskLibrary, getDaysPlayed } from '@/db/schema';
-import { SEED_TASKS } from '@/types/task';
 import { v4 as uuidv4 } from 'uuid';
+
+import useDailyRollStore from '@/store/dailyRollStore';
+import {
+  createDailyRoll,
+  getDaysPlayed,
+  getRandomActiveTask,
+  getTodayRoll,
+  markRollComplete,
+  seedTaskLibrary,
+} from '@/db/schema';
+import { SEED_TASKS } from '@/types/task';
 
 /**
  * Hook to manage daily roll initialization
@@ -13,8 +21,18 @@ import { v4 as uuidv4 } from 'uuid';
 export const useDailyRollInit = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRolling, setIsRolling] = useState(false);
 
-  const { currentRoll, initializeToday, loadFromStorage, daysPlayed } = useDailyRollStore();
+  const {
+    completeRoll,
+    currentRoll,
+    daysPlayed,
+    hydrateFromDatabase,
+    initializeToday,
+    loadFromStorage,
+    resetForNewDay,
+    setError: setStoreError,
+  } = useDailyRollStore();
 
   useEffect(() => {
     const initialize = async () => {
@@ -28,53 +46,35 @@ export const useDailyRollInit = () => {
         // Seed the task library (if not already done, the insert will ignore)
         await seedTaskLibrary(SEED_TASKS);
 
-        // Check if already rolled today
+        const daysPlayedCount = await getDaysPlayed();
         const todayRoll = await getTodayRoll();
 
         if (todayRoll) {
-          // Already rolled today - load it into the store
-          // Note: Zustand's persist middleware should handle this on rehydration
-          return;
-        }
-
-        // New day - create a new roll
-        const activeTasks = await getActiveTasks();
-
-        if (activeTasks.length === 0) {
-          throw new Error('No active tasks available');
-        }
-
-        // Initialize with tasks
-        initializeToday(
-          activeTasks.map((task) => ({
-            id: task.id,
-            category: task.category,
-            title: task.title,
-            description: task.description,
-          }))
-        );
-
-        // Persist the roll to database
-        const store = useDailyRollStore.getState();
-        if (store.currentRoll) {
-          await createDailyRoll({
-            id: store.currentRoll.id,
-            date: store.currentRoll.date,
-            taskId: store.currentRoll.taskId,
-            taskCategory: store.currentRoll.taskCategory,
-            taskTitle: store.currentRoll.taskTitle,
-            taskDescription: store.currentRoll.taskDescription,
-            createdAt: store.currentRoll.createdAt,
+          hydrateFromDatabase({
+            currentRoll: {
+              id: todayRoll.id,
+              date: todayRoll.date,
+              taskId: todayRoll.task_id,
+              taskCategory: todayRoll.task_category as 'Mind' | 'Body' | 'Life' | 'Work',
+              taskTitle: todayRoll.task_title,
+              taskDescription: todayRoll.task_description,
+              completed: Boolean(todayRoll.completed),
+              completedAt: todayRoll.completed_at ?? undefined,
+              rerollUsed: Boolean(todayRoll.reroll_used),
+              moodLogged: false,
+              createdAt: todayRoll.created_at,
+              syncedToFirebase: Boolean(todayRoll.synced_to_firebase),
+            },
+            daysPlayed: daysPlayedCount,
           });
+        } else {
+          resetForNewDay();
+          hydrateFromDatabase({ currentRoll: null, daysPlayed: daysPlayedCount });
         }
-
-        // Get updated days played count
-        const daysPlayedCount = await getDaysPlayed();
-        console.log(`Days played: ${daysPlayedCount}`);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown initialization error';
-        console.error('Daily roll initialization error:', errorMessage);
         setError(errorMessage);
+        setStoreError(errorMessage);
       } finally {
         setIsInitializing(false);
       }
@@ -83,11 +83,80 @@ export const useDailyRollInit = () => {
     initialize();
   }, []);
 
+  const rollToday = async () => {
+    if (currentRoll || isRolling) {
+      return;
+    }
+
+    try {
+      setIsRolling(true);
+      setError(null);
+      setStoreError(null);
+
+      const task = await getRandomActiveTask();
+
+      if (!task) {
+        throw new Error('No active tasks available');
+      }
+
+      initializeToday([
+        {
+          id: task.id,
+          category: task.category,
+          title: task.title,
+          description: task.description,
+        },
+      ]);
+
+      const nextRoll = useDailyRollStore.getState().currentRoll;
+      if (!nextRoll) {
+        throw new Error('Unable to create today\'s roll');
+      }
+
+      await createDailyRoll({
+        id: nextRoll.id,
+        date: nextRoll.date,
+        taskId: nextRoll.taskId,
+        taskCategory: nextRoll.taskCategory,
+        taskTitle: nextRoll.taskTitle,
+        taskDescription: nextRoll.taskDescription,
+        createdAt: nextRoll.createdAt,
+      });
+
+      const daysPlayedCount = await getDaysPlayed();
+      hydrateFromDatabase({ currentRoll: nextRoll, daysPlayed: daysPlayedCount });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Roll failed';
+      setError(errorMessage);
+      setStoreError(errorMessage);
+    } finally {
+      setIsRolling(false);
+    }
+  };
+
+  const completeToday = async () => {
+    if (!currentRoll || currentRoll.completed) {
+      return;
+    }
+
+    try {
+      await markRollComplete(currentRoll.id);
+      completeRoll();
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unable to save completion';
+      setError(errorMessage);
+      setStoreError(errorMessage);
+    }
+  };
+
   return {
+    completeToday,
     isInitializing,
+    isRolling,
     error,
     currentRoll,
     daysPlayed,
+    rollToday,
   };
 };
 

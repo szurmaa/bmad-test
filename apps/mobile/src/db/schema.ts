@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { format } from 'date-fns';
 
 /**
  * Database schema and initialization for Habit Dice
@@ -178,7 +179,7 @@ export const createDailyRoll = async (roll: {
  */
 export const getTodayRoll = async () => {
   const database = await getDatabase();
-  const today = new Date().toISOString().split('T')[0];
+  const today = format(new Date(), 'yyyy-MM-dd');
 
   const result = await database.getFirstAsync(
     `SELECT * FROM daily_rolls WHERE date = ?`,
@@ -242,6 +243,28 @@ export const getActiveTasks = async (): Promise<any[]> => {
     description: row.description,
     effortLevel: row.effort_level,
   }));
+};
+
+export const getRandomActiveTask = async (excludeTaskId?: string) => {
+  const database = await getDatabase();
+  const params = excludeTaskId ? [excludeTaskId] : [];
+  const query = excludeTaskId
+    ? `SELECT * FROM task_library WHERE is_active = 1 AND id != ? ORDER BY RANDOM() LIMIT 1`
+    : `SELECT * FROM task_library WHERE is_active = 1 ORDER BY RANDOM() LIMIT 1`;
+
+  const row = await database.getFirstAsync<DatabaseTables['task_library']>(query, params);
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    category: row.category,
+    title: row.title,
+    description: row.description,
+    effortLevel: row.effort_level,
+  };
 };
 
 /**
