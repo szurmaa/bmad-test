@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["dev", "test"]
+    environment:
+      POSTGRES_DB: ${DB_NAME:-habit_dice}
+      POSTGRES_USER: ${DB_USER:-habit_dice}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-habit_dice}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-habit_dice} -d ${DB_NAME:-habit_dice}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    profiles: ["dev", "test"]
+    env_file:
+      - ./docker/env/common.env
+      - ${APP_ENV_FILE:-./docker/env/dev.env}
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./apps/backend/src:/app/src:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:3000/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  mobile-web:
+    build:
+      context: ./apps/mobile
+      dockerfile: Dockerfile
+    profiles: ["dev", "test"]
+    env_file:
+      - ./docker/env/common.env
+      - ${APP_ENV_FILE:-./docker/env/dev.env}
+    ports:
+      - "${MOBILE_PORT:-8080}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./apps/mobile/src:/app/src:ro
+      - ./apps/mobile/app.json:/app/app.json:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8080/healthz"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

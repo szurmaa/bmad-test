@@ -1,6 +1,6 @@
 # Sprint Stories Index
 
-Complete list of 25 stories across 12 epics, organized by implementation phase.
+Complete list of 31 stories across 14 epics, organized by implementation phase.
 
 ## Phase 1: Foundation (Epic 1)
 - [1.1: Set up initial project from starter template](1-1-set-up-initial-project-from-starter-template.md)
@@ -39,7 +39,7 @@ Complete list of 25 stories across 12 epics, organized by implementation phase.
 - [9.1: Product event instrumentation](9-1-product-event-instrumentation.md)
 - [9.2: Crash reporting and alerting](9-2-crash-reporting-and-alerting.md)
 
-## Phase 4: Admin, Infrastructure, Quality (Epics 8, 10–12)
+## Phase 4: Admin, Infrastructure, Quality (Epics 8, 10–14)
 
 ### Epic 8: Admin & Moderation
 - [8.1: Admin dashboard and moderation tools](8-1-admin-dashboard-and-moderation-tools.md)
@@ -58,6 +58,16 @@ Complete list of 25 stories across 12 epics, organized by implementation phase.
 - [12.2: Notification preferences and scheduling](12-2-notification-preferences-and-scheduling.md)
 - [12.3: Data privacy and export](12-3-data-privacy-and-export.md)
 
+### Epic 13: Docker Compose Containerization
+- [13.1: Create Dockerfiles and health endpoints](13-1-create-dockerfiles-and-health-endpoints.md)
+- [13.2: Orchestrate services with Docker Compose](13-2-orchestrate-services-with-docker-compose.md)
+
+### Epic 14: QA Validation and Compliance Reports
+- [14.1: Generate test coverage report and gap plan](14-1-generate-test-coverage-report-and-gap-plan.md)
+- [14.2: Run performance testing and document findings](14-2-run-performance-testing-and-document-findings.md)
+- [14.3: Run accessibility audit and WCAG AA report](14-3-run-accessibility-audit-and-wcag-aa-report.md)
+- [14.4: Perform security review and remediation log](14-4-perform-security-review-and-remediation-log.md)
+
 ## Phase 5: Final Testing and Launch Prep
 - Quality gate review and cross-epic integration tests
 - Launch checklist validation
@@ -67,10 +77,10 @@ Complete list of 25 stories across 12 epics, organized by implementation phase.
 
 ## Story Status Summary
 
-Total Stories: 25
-- **Backlog:** 25
+Total Stories: 31
+- **Backlog:** 4
 - **In Progress:** 0
-- **Completed:** 0
+- **Completed:** 27
 - **Blocked:** 0
 
 ## Implementation Sequence Recommendation
@@ -91,4 +101,4 @@ Total Stories: 25
 
 ---
 
-*Last updated: [current date]*
+*Last updated: 2026-04-11*
