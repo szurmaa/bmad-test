@@ -215,6 +215,21 @@ export const markRerollUsed = async (rollId: string) => {
   );
 };
 
+export const rerollDailyTask = async (rollId: string, task: {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+}) => {
+  const database = await getDatabase();
+  await database.runAsync(
+    `UPDATE daily_rolls
+     SET task_id = ?, task_category = ?, task_title = ?, task_description = ?, reroll_used = 1, completed = 0, completed_at = NULL
+     WHERE id = ?`,
+    [task.id, task.category, task.title, task.description, rollId]
+  );
+};
+
 /**
  * Log mood for a roll
  */

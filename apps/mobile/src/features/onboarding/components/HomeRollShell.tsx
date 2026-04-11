@@ -7,14 +7,24 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { CompletionMoment } from '@/features/daily-roll/components/CompletionMoment';
 import { DiceRoll } from '@/features/daily-roll/components/DiceRoll';
+import { RerollStateIndicator } from '@/features/daily-roll/components/RerollStateIndicator';
 import { TaskRevealCard } from '@/features/daily-roll/components/TaskRevealCard';
 import { useDailyRollInit } from '@/hooks/useDailyRollInit';
 import { useTheme } from '@/hooks/use-theme';
 
 export function HomeRollShell() {
   const theme = useTheme();
-  const { completeToday, currentRoll, daysPlayed, error, isInitializing, isRolling, rollToday } =
-    useDailyRollInit();
+  const {
+    completeToday,
+    currentRoll,
+    daysPlayed,
+    error,
+    isInitializing,
+    isRerolling,
+    isRolling,
+    rerollCurrentTask,
+    rollToday,
+  } = useDailyRollInit();
   const [showCompletionMoment, setShowCompletionMoment] = React.useState(false);
 
   React.useEffect(() => {
@@ -65,12 +75,33 @@ export function HomeRollShell() {
 
           {currentRoll ? (
             <View style={styles.taskSection}>
+              <RerollStateIndicator rerollUsed={currentRoll.rerollUsed} />
+
               <TaskRevealCard
                 category={currentRoll.taskCategory}
                 description={currentRoll.taskDescription}
                 effort="Quick"
                 title={currentRoll.taskTitle}
               />
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={currentRoll.rerollUsed ? 'Reroll used today' : 'Reroll task once today'}
+                disabled={currentRoll.rerollUsed || currentRoll.completed || isRerolling}
+                onPress={() => void rerollCurrentTask()}
+                style={({ pressed }) => [
+                  styles.secondaryButton,
+                  {
+                    backgroundColor: theme.backgroundElement,
+                    borderColor: theme.backgroundSelected,
+                    opacity: pressed && !currentRoll.rerollUsed && !currentRoll.completed ? 0.92 : 1,
+                  },
+                ]}
+                testID="reroll-button">
+                <ThemedText type="default" themeColor={currentRoll.rerollUsed ? 'textSecondary' : 'text'}>
+                  {currentRoll.rerollUsed ? 'Reroll used today' : isRerolling ? 'Rerolling...' : 'Reroll (1 left)'}
+                </ThemedText>
+              </Pressable>
 
               <Pressable
                 accessibilityRole="button"
@@ -148,6 +179,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.three,
     marginTop: Spacing.one,
+  },
+  secondaryButton: {
+    minHeight: 56,
+    borderRadius: Spacing.three,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.three,
   },
   rollButtonText: {
     color: '#FFFFFF',

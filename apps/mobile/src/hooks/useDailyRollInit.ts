@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 import useDailyRollStore from '@/store/dailyRollStore';
 import {
@@ -8,6 +7,7 @@ import {
   getRandomActiveTask,
   getTodayRoll,
   markRollComplete,
+  rerollDailyTask,
   seedTaskLibrary,
 } from '@/db/schema';
 import { SEED_TASKS } from '@/types/task';
@@ -22,6 +22,7 @@ export const useDailyRollInit = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRolling, setIsRolling] = useState(false);
+  const [isRerolling, setIsRerolling] = useState(false);
 
   const {
     completeRoll,
@@ -31,6 +32,7 @@ export const useDailyRollInit = () => {
     initializeToday,
     loadFromStorage,
     resetForNewDay,
+    rerollToday,
     setError: setStoreError,
   } = useDailyRollStore();
 
@@ -149,13 +151,53 @@ export const useDailyRollInit = () => {
     }
   };
 
+  const rerollCurrentTask = async () => {
+    if (!currentRoll || currentRoll.rerollUsed || currentRoll.completed || isRerolling) {
+      return;
+    }
+
+    try {
+      setIsRerolling(true);
+      setError(null);
+      setStoreError(null);
+
+      const nextTask = await getRandomActiveTask(currentRoll.taskId);
+
+      if (!nextTask) {
+        throw new Error('No alternate task is available right now');
+      }
+
+      await rerollDailyTask(currentRoll.id, {
+        id: nextTask.id,
+        category: nextTask.category,
+        title: nextTask.title,
+        description: nextTask.description,
+      });
+
+      rerollToday({
+        id: nextTask.id,
+        category: nextTask.category,
+        title: nextTask.title,
+        description: nextTask.description,
+      });
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Reroll failed';
+      setError(errorMessage);
+      setStoreError(errorMessage);
+    } finally {
+      setIsRerolling(false);
+    }
+  };
+
   return {
     completeToday,
     isInitializing,
     isRolling,
+    isRerolling,
     error,
     currentRoll,
     daysPlayed,
+    rerollCurrentTask,
     rollToday,
   };
 };

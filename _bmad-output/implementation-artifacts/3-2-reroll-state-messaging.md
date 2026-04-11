@@ -1,6 +1,7 @@
 # Story 3.2: Reroll State Messaging
 
-Status: backlog
+Status: in-progress
+
 
 ## Story
 
@@ -37,3 +38,16 @@ So that I understand the rule without penalty framing.
 
 **FRs Covered:** FR6, FR7
 **Epic:** Epic 3 - Reroll Constraint & Task Customization
+
+## Dev Agent Record
+
+### Status
+- [x] Implementation complete
+- [ ] Tests passing
+- [ ] Code reviewed
+
+### Notes
+- Added a dedicated reroll state indicator with neutral copy for both available and used states.
+- Added a reroll CTA that shows `Reroll (1 left)` when available and `Reroll used today` after use.
+- Messaging avoids penalty framing and clearly communicates `Ready again tomorrow.` after the reroll is spent.
+- Automated Jest execution remains limited by existing Expo test-runtime infrastructure issues in this repo.

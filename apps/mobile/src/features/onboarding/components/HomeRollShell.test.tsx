@@ -23,7 +23,9 @@ describe('HomeRollShell', () => {
       daysPlayed: 0,
       error: null,
       isInitializing: false,
+      isRerolling: false,
       isRolling: false,
+      rerollCurrentTask: jest.fn(),
       rollToday,
     });
 
@@ -37,6 +39,7 @@ describe('HomeRollShell', () => {
 
   it('shows the revealed task and completion action after rolling', () => {
     const completeToday = jest.fn();
+    const rerollCurrentTask = jest.fn();
 
     mockUseDailyRollInit.mockReturnValue({
       completeToday,
@@ -56,7 +59,9 @@ describe('HomeRollShell', () => {
       daysPlayed: 3,
       error: null,
       isInitializing: false,
+      isRerolling: false,
       isRolling: false,
+      rerollCurrentTask,
       rollToday: jest.fn(),
     });
 
@@ -67,5 +72,39 @@ describe('HomeRollShell', () => {
 
     fireEvent.press(screen.getByTestId('complete-button'));
     expect(completeToday).toHaveBeenCalledTimes(1);
+
+    fireEvent.press(screen.getByTestId('reroll-button'));
+    expect(rerollCurrentTask).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows neutral reroll messaging after the reroll has been used', () => {
+    mockUseDailyRollInit.mockReturnValue({
+      completeToday: jest.fn(),
+      currentRoll: {
+        id: 'roll-1',
+        date: '2026-04-11',
+        taskId: 'task_body_002',
+        taskCategory: 'Body',
+        taskTitle: '5-minute walk',
+        taskDescription: 'Take a 5-minute walk outside or around your home',
+        completed: false,
+        rerollUsed: true,
+        moodLogged: false,
+        createdAt: '2026-04-11T10:00:00.000Z',
+        syncedToFirebase: false,
+      },
+      daysPlayed: 3,
+      error: null,
+      isInitializing: false,
+      isRerolling: false,
+      isRolling: false,
+      rerollCurrentTask: jest.fn(),
+      rollToday: jest.fn(),
+    });
+
+    render(<HomeRollShell />);
+
+    expect(screen.getByText('Reroll used today')).toBeTruthy();
+    expect(screen.getByText('Ready again tomorrow.')).toBeTruthy();
   });
 });

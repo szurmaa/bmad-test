@@ -1,6 +1,7 @@
 # Story 3.1: One-Time Daily Reroll
 
-Status: backlog
+Status: in-progress
+
 
 ## Story
 
@@ -37,3 +38,16 @@ So that I can replace one unsuitable task without endless retries.
 
 **FRs Covered:** FR6, FR7
 **Epic:** Epic 3 - Reroll Constraint & Task Customization
+
+## Dev Agent Record
+
+### Status
+- [x] Implementation complete
+- [ ] Tests passing
+- [ ] Code reviewed
+
+### Notes
+- Added one-time reroll behavior to the mobile daily roll flow with state persisted through `daily_rolls.reroll_used`.
+- Reroll now selects a different task than the original one when an alternate active task exists.
+- The reroll action is blocked after one use per day and also blocked after task completion.
+- Automated Jest execution remains limited by existing Expo test-runtime infrastructure issues in this repo.
