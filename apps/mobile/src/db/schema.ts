@@ -347,4 +347,17 @@ export const getDaysPlayed = async (): Promise<number> => {
   return result?.count || 0;
 };
 
+/**
+ * Get mood log for a specific roll (null if none logged yet)
+ */
+export const getMoodLogForRoll = async (rollId: string): Promise<{ mood_value: number } | null> => {
+  const database = await getDatabase();
+  const result = await database.getFirstAsync<{ mood_value: number }>(
+    `SELECT mood_value FROM mood_logs WHERE daily_roll_id = ? LIMIT 1`,
+    [rollId]
+  );
+
+  return result ?? null;
+};
+
 export default getDatabase;

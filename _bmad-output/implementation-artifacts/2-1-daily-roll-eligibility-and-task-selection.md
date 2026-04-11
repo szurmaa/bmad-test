@@ -44,11 +44,11 @@ So that the app gives me a clear daily action.
 
 ### Status
 - [x] Implementation complete
-- [ ] Tests passing
+- [x] Tests passing
 - [ ] Code reviewed
 
 ### Notes
 - Implemented SQLite-backed once-per-day roll flow in the mobile app shell.
 - Fixed the earlier bug where a roll was created automatically on app launch; rolls now start only when the user taps the roll control.
 - Added persistence hydration so reopening the app on the same day shows the same task.
-- Targeted Jest execution is still blocked by repo-level Expo/Jest runtime issues unrelated to the new roll logic.
+- Jest test infrastructure repaired (aligned jest-expo 55 with Jest 29 toolchain); focused test suite passes.

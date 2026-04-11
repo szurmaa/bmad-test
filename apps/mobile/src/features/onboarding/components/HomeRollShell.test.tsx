@@ -1,6 +1,6 @@
 import { describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { HomeRollShell } from '@/features/onboarding/components/HomeRollShell';
 
@@ -25,8 +25,11 @@ describe('HomeRollShell', () => {
       isInitializing: false,
       isRerolling: false,
       isRolling: false,
+      isSavingMood: false,
+      logMoodToday: jest.fn(),
       rerollCurrentTask: jest.fn(),
       rollToday,
+      skipMoodToday: jest.fn(),
     });
 
     render(<HomeRollShell />);
@@ -63,8 +66,11 @@ describe('HomeRollShell', () => {
       isInitializing: false,
       isRerolling: false,
       isRolling: false,
+      isSavingMood: false,
+      logMoodToday: jest.fn(),
       rerollCurrentTask,
       rollToday: jest.fn(),
+      skipMoodToday: jest.fn(),
     });
 
     render(<HomeRollShell />);
@@ -101,8 +107,11 @@ describe('HomeRollShell', () => {
       isInitializing: false,
       isRerolling: false,
       isRolling: false,
+      isSavingMood: false,
+      logMoodToday: jest.fn(),
       rerollCurrentTask: jest.fn(),
       rollToday: jest.fn(),
+      skipMoodToday: jest.fn(),
     });
 
     render(<HomeRollShell />);
@@ -110,5 +119,127 @@ describe('HomeRollShell', () => {
     expect(screen.getAllByText('Reroll used today')).toHaveLength(2);
     expect(screen.getByText('Ready again tomorrow.')).toBeTruthy();
     expect(screen.queryByText(/streak/i)).toBeNull();
+  });
+
+  it('shows mood prompt after task is completed and mood not yet logged', () => {
+    jest.useFakeTimers();
+    const logMoodToday = jest.fn();
+    const skipMoodToday = jest.fn();
+
+    mockUseDailyRollInit.mockReturnValue({
+      completeToday: jest.fn(),
+      currentRoll: {
+        id: 'roll-1',
+        date: '2026-04-11',
+        taskId: 'task_body_001',
+        taskCategory: 'Body',
+        taskTitle: 'Drink water',
+        taskDescription: 'Drink one full glass of water',
+        completed: true,
+        rerollUsed: false,
+        moodLogged: false,
+        createdAt: '2026-04-11T10:00:00.000Z',
+        syncedToFirebase: false,
+      },
+      daysPlayed: 3,
+      error: null,
+      isInitializing: false,
+      isRerolling: false,
+      isRolling: false,
+      isSavingMood: false,
+      logMoodToday,
+      rerollCurrentTask: jest.fn(),
+      rollToday: jest.fn(),
+      skipMoodToday,
+    });
+
+    render(<HomeRollShell />);
+    // Advance past the 1400ms completion moment so mood prompt becomes visible
+    act(() => { jest.advanceTimersByTime(1500); });
+
+    expect(screen.getByTestId('mood-prompt')).toBeTruthy();
+    expect(screen.getByText('How are you feeling?')).toBeTruthy();
+    expect(screen.getByTestId('mood-skip-button')).toBeTruthy();
+    expect(screen.getByTestId('mood-option-3')).toBeTruthy();
+
+    fireEvent.press(screen.getByTestId('mood-skip-button'));
+    expect(skipMoodToday).toHaveBeenCalledTimes(1);
+    jest.useRealTimers();
+  });
+
+  it('does not show mood prompt when mood already logged', () => {
+    jest.useFakeTimers();
+    mockUseDailyRollInit.mockReturnValue({
+      completeToday: jest.fn(),
+      currentRoll: {
+        id: 'roll-1',
+        date: '2026-04-11',
+        taskId: 'task_body_001',
+        taskCategory: 'Body',
+        taskTitle: 'Drink water',
+        taskDescription: 'Drink one full glass of water',
+        completed: true,
+        rerollUsed: false,
+        moodLogged: true,
+        moodValue: 4,
+        createdAt: '2026-04-11T10:00:00.000Z',
+        syncedToFirebase: false,
+      },
+      daysPlayed: 3,
+      error: null,
+      isInitializing: false,
+      isRerolling: false,
+      isRolling: false,
+      isSavingMood: false,
+      logMoodToday: jest.fn(),
+      rerollCurrentTask: jest.fn(),
+      rollToday: jest.fn(),
+      skipMoodToday: jest.fn(),
+    });
+
+    render(<HomeRollShell />);
+    act(() => { jest.advanceTimersByTime(1500); });
+
+    expect(screen.queryByTestId('mood-prompt')).toBeNull();
+    jest.useRealTimers();
+  });
+
+  it('calls logMoodToday when a mood option is selected', () => {
+    jest.useFakeTimers();
+    const logMoodToday = jest.fn();
+
+    mockUseDailyRollInit.mockReturnValue({
+      completeToday: jest.fn(),
+      currentRoll: {
+        id: 'roll-1',
+        date: '2026-04-11',
+        taskId: 'task_body_001',
+        taskCategory: 'Body',
+        taskTitle: 'Drink water',
+        taskDescription: 'Drink one full glass of water',
+        completed: true,
+        rerollUsed: false,
+        moodLogged: false,
+        createdAt: '2026-04-11T10:00:00.000Z',
+        syncedToFirebase: false,
+      },
+      daysPlayed: 3,
+      error: null,
+      isInitializing: false,
+      isRerolling: false,
+      isRolling: false,
+      isSavingMood: false,
+      logMoodToday,
+      rerollCurrentTask: jest.fn(),
+      rollToday: jest.fn(),
+      skipMoodToday: jest.fn(),
+    });
+
+    render(<HomeRollShell />);
+    act(() => { jest.advanceTimersByTime(1500); });
+
+    fireEvent.press(screen.getByTestId('mood-option-5'));
+    expect(logMoodToday).toHaveBeenCalledWith(5);
+    jest.useRealTimers();
   });
 });

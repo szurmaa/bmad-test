@@ -45,11 +45,11 @@ So that I feel positive reinforcement.
 
 ### Status
 - [x] Implementation complete
-- [ ] Tests passing
+- [x] Tests passing
 - [ ] Code reviewed
 
 ### Notes
 - Added task completion persistence through the daily roll table update path and wired the complete action into the home shell.
 - Added a lightweight completion moment overlay that respects reduced-motion settings.
 - Completion state now persists across same-day returns and updates the task CTA accordingly.
-- Targeted Jest execution is still blocked by repo-level Expo/Jest runtime issues unrelated to the new completion flow.
+- Jest test infrastructure repaired; focused test suite passes.

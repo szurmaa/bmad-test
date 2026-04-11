@@ -8,6 +8,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { CompletionMoment } from '@/features/daily-roll/components/CompletionMoment';
 import { DiceRoll } from '@/features/daily-roll/components/DiceRoll';
 import { DaysPlayedCounter } from '@/features/daily-roll/components/DaysPlayedCounter';
+import { MoodPrompt } from '@/features/daily-roll/components/MoodPrompt';
 import { RerollStateIndicator } from '@/features/daily-roll/components/RerollStateIndicator';
 import { TaskRevealCard } from '@/features/daily-roll/components/TaskRevealCard';
 import { useDailyRollInit } from '@/hooks/useDailyRollInit';
@@ -21,12 +22,18 @@ export function HomeRollShell() {
     daysPlayed,
     error,
     isInitializing,
+    isSavingMood,
     isRerolling,
     isRolling,
+    logMoodToday,
     rerollCurrentTask,
     rollToday,
+    skipMoodToday,
   } = useDailyRollInit();
   const [showCompletionMoment, setShowCompletionMoment] = React.useState(false);
+  const showMoodPrompt = Boolean(
+    currentRoll?.completed && !currentRoll?.moodLogged && !showCompletionMoment
+  );
 
   React.useEffect(() => {
     if (!currentRoll?.completed) {
@@ -126,6 +133,14 @@ export function HomeRollShell() {
             <ThemedText style={styles.errorText} themeColor="textSecondary" type="small">
               {error}
             </ThemedText>
+          ) : null}
+
+          {showMoodPrompt ? (
+            <MoodPrompt
+              isSubmitting={isSavingMood}
+              onSkip={skipMoodToday}
+              onSubmit={(value) => void logMoodToday(value)}
+            />
           ) : null}
         </View>
         <CompletionMoment visible={showCompletionMoment} />

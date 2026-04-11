@@ -43,11 +43,11 @@ So that I can see cumulative engagement over time.
 
 ### Status
 - [x] Implementation complete
-- [ ] Tests passing
+- [x] Tests passing
 - [ ] Code reviewed
 
 ### Notes
 - Added a dedicated additive days-played counter component to the home experience.
 - The count is derived from distinct daily rolls and continues across app relaunches and day gaps without resetting.
 - Added positive increment animation for count increases when reduced motion is not enabled.
-- Automated Jest execution remains limited by existing Expo test-runtime infrastructure issues in this repo.
+- Jest test infrastructure repaired; focused test suite passes.

@@ -4,8 +4,10 @@ import useDailyRollStore from '@/store/dailyRollStore';
 import {
   createDailyRoll,
   getDaysPlayed,
+  getMoodLogForRoll,
   getRandomActiveTask,
   getTodayRoll,
+  logMood as dbLogMood,
   markRollComplete,
   rerollDailyTask,
   seedTaskLibrary,
@@ -24,6 +26,8 @@ export const useDailyRollInit = () => {
   const [isRolling, setIsRolling] = useState(false);
   const [isRerolling, setIsRerolling] = useState(false);
 
+  const [isSavingMood, setIsSavingMood] = useState(false);
+
   const {
     completeRoll,
     currentRoll,
@@ -31,9 +35,11 @@ export const useDailyRollInit = () => {
     hydrateFromDatabase,
     initializeToday,
     loadFromStorage,
+    logMood: storeMoodLog,
     resetForNewDay,
     rerollToday,
     setError: setStoreError,
+    skipMoodLog: storeSkipMood,
   } = useDailyRollStore();
 
   useEffect(() => {
@@ -52,6 +58,13 @@ export const useDailyRollInit = () => {
         const todayRoll = await getTodayRoll();
 
         if (todayRoll) {
+          // Check DB for an actual mood log; fall back to store's persisted skip state
+          const moodLog = await getMoodLogForRoll(todayRoll.id);
+          const persistedRoll = useDailyRollStore.getState().currentRoll;
+          const moodAlreadyHandled =
+            moodLog !== null ||
+            (persistedRoll?.date === todayRoll.date && persistedRoll?.moodLogged === true);
+
           hydrateFromDatabase({
             currentRoll: {
               id: todayRoll.id,
@@ -63,7 +76,8 @@ export const useDailyRollInit = () => {
               completed: Boolean(todayRoll.completed),
               completedAt: todayRoll.completed_at ?? undefined,
               rerollUsed: Boolean(todayRoll.reroll_used),
-              moodLogged: false,
+              moodLogged: moodAlreadyHandled,
+              moodValue: moodLog?.mood_value ?? undefined,
               createdAt: todayRoll.created_at,
               syncedToFirebase: Boolean(todayRoll.synced_to_firebase),
             },
@@ -189,16 +203,50 @@ export const useDailyRollInit = () => {
     }
   };
 
+  const logMoodToday = async (moodValue: number) => {
+    if (!currentRoll || currentRoll.moodLogged || isSavingMood) {
+      return;
+    }
+
+    if (moodValue < 1 || moodValue > 5) {
+      return;
+    }
+
+    try {
+      setIsSavingMood(true);
+      const moodLogId = `mood_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      await dbLogMood(moodLogId, currentRoll.id, moodValue);
+      storeMoodLog(moodValue);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Could not save mood';
+      setError(errorMessage);
+      setStoreError(errorMessage);
+    } finally {
+      setIsSavingMood(false);
+    }
+  };
+
+  const skipMoodToday = () => {
+    if (!currentRoll || currentRoll.moodLogged) {
+      return;
+    }
+
+    storeSkipMood();
+  };
+
   return {
     completeToday,
     isInitializing,
     isRolling,
     isRerolling,
+    isSavingMood,
     error,
     currentRoll,
     daysPlayed,
     rerollCurrentTask,
     rollToday,
+    logMoodToday,
+    skipMoodToday,
   };
 };
 

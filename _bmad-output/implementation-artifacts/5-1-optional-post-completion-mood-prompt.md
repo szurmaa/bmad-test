@@ -1,6 +1,6 @@
 # Story 5.1: Optional Post-Completion Mood Prompt
 
-Status: backlog
+Status: in-progress
 
 ## Story
 
@@ -38,3 +38,17 @@ So that I can reflect quickly without friction.
 
 **FRs Covered:** FR15, FR17
 **Epic:** Epic 5 - Mood Reflection & Daily Logging
+
+## Dev Agent Record
+
+### Status
+- [x] Implementation complete
+- [x] Tests passing
+- [ ] Code reviewed
+
+### Notes
+- Added `MoodPrompt` component showing a 1-5 emoji scale (😔–😊) with equal-weight skip button.
+- Mood prompt appears after the 1.4s completion moment animation clears, gated by `completed && !moodLogged`.
+- Mood value written to `mood_logs` SQLite table via `logMoodToday` hook function.
+- Store `logMood` action sets `moodLogged: true` with `moodValue` for same-day persistence via AsyncStorage.
+- Added `getMoodLogForRoll` DB helper; hydration now correctly restores mood state on app restart.

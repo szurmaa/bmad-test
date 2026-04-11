@@ -1,6 +1,6 @@
 # Story 5.2: Skip Without Re-Prompting
 
-Status: backlog
+Status: in-progress
 
 ## Story
 
@@ -37,3 +37,17 @@ So that I am not repeatedly prompted after skipping.
 
 **FRs Covered:** FR16
 **Epic:** Epic 5 - Mood Reflection & Daily Logging
+
+## Dev Agent Record
+
+### Status
+- [x] Implementation complete
+- [x] Tests passing
+- [ ] Code reviewed
+
+### Notes
+- Skip button is rendered with identical visual weight to mood scale options (same border, padding).
+- `skipMoodToday` hook function calls `skipMoodLog` store action which sets `moodLogged: true` without a value; no DB write for skip.
+- Skip state persists within the session via Zustand AsyncStorage middleware; on app restart, hydration checks the DB then falls back to the store's persisted `moodLogged` flag to avoid re-showing the prompt.
+- Copy uses neutral language: `Skip for today` with no penalty framing.
+- Tests verify: skip hides the prompt, prompt does not reappear when `moodLogged: true`.

@@ -43,11 +43,11 @@ So that I understand the rule without penalty framing.
 
 ### Status
 - [x] Implementation complete
-- [ ] Tests passing
+- [x] Tests passing
 - [ ] Code reviewed
 
 ### Notes
 - Added a dedicated reroll state indicator with neutral copy for both available and used states.
 - Added a reroll CTA that shows `Reroll (1 left)` when available and `Reroll used today` after use.
 - Messaging avoids penalty framing and clearly communicates `Ready again tomorrow.` after the reroll is spent.
-- Automated Jest execution remains limited by existing Expo test-runtime infrastructure issues in this repo.
+- Jest test infrastructure repaired; focused test suite passes.

@@ -43,11 +43,11 @@ So that I understand what to do next.
 
 ### Status
 - [x] Implementation complete
-- [ ] Tests passing
+- [x] Tests passing
 - [ ] Code reviewed
 
 ### Notes
 - Added a dedicated task reveal card with category badge, description, and effort badge.
 - Added a dice roll interaction that respects reduced-motion preferences for reveal animation behavior.
 - Hooked the reveal state into the existing home shell so task details are visible after the daily roll and after app relaunch.
-- Targeted Jest execution is still blocked by repo-level Expo/Jest runtime issues unrelated to the new reveal UI.
+- Jest test infrastructure repaired; focused test suite passes.

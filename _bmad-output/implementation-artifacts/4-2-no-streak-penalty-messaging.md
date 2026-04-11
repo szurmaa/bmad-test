@@ -43,11 +43,11 @@ So that missed days do not feel punitive.
 
 ### Status
 - [x] Implementation complete
-- [ ] Tests passing
+- [x] Tests passing
 - [ ] Code reviewed
 
 ### Notes
 - Reworked progress messaging to use additive language such as `days played` and `You've shown up X times.`
 - Avoided any missed-day or broken-streak language in the current home shell experience.
 - Added test assertions to guard against streak-oriented wording in the Epic 4 UI path.
-- Automated Jest execution remains limited by existing Expo test-runtime infrastructure issues in this repo.
+- Jest test infrastructure repaired; focused test suite passes.

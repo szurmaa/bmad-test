@@ -35,6 +35,7 @@ export interface DailyRollStore {
   completeRoll: () => void;
   rerollToday: (newTask: { id: string; category: string; title: string; description: string }) => void;
   logMood: (moodValue: number) => void;
+  skipMoodLog: () => void;
   markSyncedToFirebase: () => void;
   resetForNewDay: () => void;
   hydrateFromDatabase: (payload: { currentRoll: DailyRoll | null; daysPlayed: number }) => void;
@@ -157,6 +158,19 @@ export const useDailyRollStore = create<DailyRollStore>()(
               moodValue,
             },
             error: null,
+          };
+        });
+      },
+
+      skipMoodLog: () => {
+        set((state) => {
+          if (!state.currentRoll || state.currentRoll.moodLogged) return state;
+
+          return {
+            currentRoll: {
+              ...state.currentRoll,
+              moodLogged: true,
+            },
           };
         });
       },
