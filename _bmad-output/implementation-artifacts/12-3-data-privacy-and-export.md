@@ -1,6 +1,6 @@
 # Story 12.3: Data Privacy and Export
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -33,6 +33,24 @@ So that I have control over my personal information.
 - Unit tests: Data export format, deletion flag logic
 - Integration tests: Export user data → verify completeness → delete account → verify cascade
 - E2E tests: User exports data → receives file → user deletes account → verify access revoked
+
+## Dev Record
+
+- Added privacy service in `apps/mobile/src/features/settings/DataPrivacyService.ts`:
+	- exports local user data snapshot to JSON file in app document storage
+	- includes profile, preferences, rolls, mood logs, and completions
+	- handles account deletion requests by clearing local user data and queueing deletion intent
+- Added deletion sync handling in `apps/mobile/src/features/sync/SyncService.ts`:
+	- `account_deletion_requested` -> Firestore `deletion_requests`
+- Wired data privacy actions into settings UI in `apps/mobile/src/app/settings.tsx`:
+	- Export Data action
+	- Delete Account action
+	- inline status messaging for action outcomes
+- Added test coverage:
+	- `apps/mobile/src/features/settings/DataPrivacyService.test.ts`
+
+Validation run:
+- Focused tests: 34 passing including export file generation and deletion request queueing
 
 ## References
 

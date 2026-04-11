@@ -9,14 +9,42 @@ export type ScheduledTime = {
   minute: number; // 0-59
 };
 
+export type ReminderType = 'daily' | 'weekly' | 'email_only';
+
 /**
  * Schedule a daily reminder notification at the given local time.
  * Cancels any previously scheduled reminder before scheduling the new one.
  * Returns the new notification identifier.
  */
-export async function scheduleReminderNotification(time: ScheduledTime): Promise<string> {
+export async function scheduleReminderNotification(
+  time: ScheduledTime,
+  options?: { reminderType?: ReminderType }
+): Promise<string> {
   // Cancel any existing scheduled reminder first
   await cancelReminderNotification();
+
+  const reminderType = options?.reminderType ?? 'daily';
+  if (reminderType === 'email_only') {
+    return '';
+  }
+
+  const day = new Date().getDay();
+  const weekday = day === 0 ? 1 : day + 1;
+  const trigger =
+    reminderType === 'weekly'
+      ? {
+          type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+          weekday,
+          hour: time.hour,
+          minute: time.minute,
+          channelId: CHANNEL_ID,
+        }
+      : {
+          type: Notifications.SchedulableTriggerInputTypes.DAILY,
+          hour: time.hour,
+          minute: time.minute,
+          channelId: CHANNEL_ID,
+        };
 
   const notificationId = await Notifications.scheduleNotificationAsync({
     content: {
@@ -24,12 +52,7 @@ export async function scheduleReminderNotification(time: ScheduledTime): Promise
       body: 'Tap to roll your micro-habit for today.',
       data: { url: DEEP_LINK_URL },
     },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour: time.hour,
-      minute: time.minute,
-      channelId: CHANNEL_ID,
-    },
+    trigger,
   });
 
   // Persist the identifier so we can cancel it later

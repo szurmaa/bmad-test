@@ -1,6 +1,6 @@
 # Story 12.2: Notification Preferences and Scheduling
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -32,6 +32,30 @@ So that I'm not overwhelmed.
 - Unit tests: DND logic, preference evaluation, scheduling math
 - Integration tests: Set DND → trigger would-be notification → verify suppression
 - E2E tests: Toggle notifications → set DND hours → verify behavior across devices
+
+## Dev Record
+
+- Extended reminder preference contract in `apps/mobile/src/db/local-profile-storage.ts`:
+	- `reminderType`: `daily | weekly | email_only`
+	- DND window: `doNotDisturbStart` / `doNotDisturbEnd`
+- Upgraded scheduler logic in `apps/mobile/src/features/notifications/services/NotificationSchedulerService.ts`:
+	- supports DAILY and WEEKLY local scheduling
+	- suppresses local scheduling for `email_only`
+- Upgraded settings behavior in `apps/mobile/src/hooks/useReminderSettings.ts`:
+	- recalculates scheduling whenever enabled/time/type/DND changes
+	- includes DND suppression logic for reminder times inside quiet hours
+	- syncs profile-level notification preferences to queue
+- Expanded UI controls in `apps/mobile/src/features/notifications/components/ReminderSettingsCard.tsx`:
+	- frequency toggles
+	- DND start/end time inputs with validation
+	- save actions for schedule and DND windows
+- Added test coverage:
+	- updated `apps/mobile/src/hooks/useReminderSettings.test.ts`
+	- updated `apps/mobile/src/features/notifications/services/NotificationSchedulerService.test.ts`
+	- updated `apps/mobile/src/features/sync/SyncService.test.ts`
+
+Validation run:
+- Focused tests: 34 passing including scheduler frequency handling and DND-aware preference updates
 
 ## References
 

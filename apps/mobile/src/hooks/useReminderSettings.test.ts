@@ -3,6 +3,7 @@ import { act, renderHook } from '@testing-library/react-native';
 
 // Mock dependencies before importing the hook
 jest.mock('@/db/local-profile-storage', () => ({
+  getOrCreateLocalProfileId: jest.fn(async () => 'profile-1'),
   readReminderPreference: jest.fn(),
   writeReminderPreference: jest.fn(async () => {}),
 }));
@@ -44,12 +45,26 @@ const mockQueuePushReminderPreference = jest.mocked(queuePushReminderPreference)
 beforeEach(() => {
   jest.clearAllMocks();
   // Default: reminders disabled, 9:00
-  mockRead.mockResolvedValue({ enabled: false, hour: 9, minute: 0 });
+  mockRead.mockResolvedValue({
+    enabled: false,
+    hour: 9,
+    minute: 0,
+    reminderType: 'daily',
+    doNotDisturbStart: null,
+    doNotDisturbEnd: null,
+  });
 });
 
 describe('useReminderSettings', () => {
   it('loads defaults from storage on mount', async () => {
-    mockRead.mockResolvedValueOnce({ enabled: true, hour: 8, minute: 15 });
+    mockRead.mockResolvedValueOnce({
+      enabled: true,
+      hour: 8,
+      minute: 15,
+      reminderType: 'daily',
+      doNotDisturbStart: null,
+      doNotDisturbEnd: null,
+    });
 
     const { result } = renderHook(() => useReminderSettings());
 
@@ -62,6 +77,7 @@ describe('useReminderSettings', () => {
     expect(result.current.enabled).toBe(true);
     expect(result.current.hour).toBe(8);
     expect(result.current.minute).toBe(15);
+    expect(result.current.reminderType).toBe('daily');
   });
 
   it('starts with isLoading=true and exposes defaults before data resolves', () => {
@@ -76,6 +92,7 @@ describe('useReminderSettings', () => {
     expect(result.current.enabled).toBe(false);
     expect(result.current.hour).toBe(9);
     expect(result.current.minute).toBe(0);
+    expect(result.current.reminderType).toBe('daily');
   });
 
   describe('setEnabled', () => {
@@ -87,8 +104,15 @@ describe('useReminderSettings', () => {
         await result.current.setEnabled(true);
       });
 
-      expect(mockWrite).toHaveBeenCalledWith({ enabled: true, hour: 9, minute: 0 });
-      expect(mockSchedule).toHaveBeenCalledWith({ hour: 9, minute: 0 });
+      expect(mockWrite).toHaveBeenCalledWith({
+        enabled: true,
+        hour: 9,
+        minute: 0,
+        reminderType: 'daily',
+        doNotDisturbStart: null,
+        doNotDisturbEnd: null,
+      });
+      expect(mockSchedule).toHaveBeenCalledWith({ hour: 9, minute: 0 }, { reminderType: 'daily' });
       expect(mockQueuePushReminderPreference).toHaveBeenCalledWith({
         enabled: true,
         hour: 9,
@@ -99,7 +123,14 @@ describe('useReminderSettings', () => {
     });
 
     it('persists enabled=false and cancels the notification', async () => {
-      mockRead.mockResolvedValueOnce({ enabled: true, hour: 9, minute: 0 });
+      mockRead.mockResolvedValueOnce({
+        enabled: true,
+        hour: 9,
+        minute: 0,
+        reminderType: 'daily',
+        doNotDisturbStart: null,
+        doNotDisturbEnd: null,
+      });
       const { result } = renderHook(() => useReminderSettings());
       await act(async () => {});
 
@@ -107,7 +138,14 @@ describe('useReminderSettings', () => {
         await result.current.setEnabled(false);
       });
 
-      expect(mockWrite).toHaveBeenCalledWith({ enabled: false, hour: 9, minute: 0 });
+      expect(mockWrite).toHaveBeenCalledWith({
+        enabled: false,
+        hour: 9,
+        minute: 0,
+        reminderType: 'daily',
+        doNotDisturbStart: null,
+        doNotDisturbEnd: null,
+      });
       expect(mockCancel).toHaveBeenCalledTimes(1);
       expect(mockQueuePushReminderPreference).toHaveBeenCalledWith({
         enabled: false,
@@ -121,7 +159,14 @@ describe('useReminderSettings', () => {
 
   describe('setTime', () => {
     it('persists new time and re-schedules when reminders are enabled', async () => {
-      mockRead.mockResolvedValueOnce({ enabled: true, hour: 9, minute: 0 });
+      mockRead.mockResolvedValueOnce({
+        enabled: true,
+        hour: 9,
+        minute: 0,
+        reminderType: 'daily',
+        doNotDisturbStart: null,
+        doNotDisturbEnd: null,
+      });
       const { result } = renderHook(() => useReminderSettings());
       await act(async () => {});
 
@@ -129,8 +174,15 @@ describe('useReminderSettings', () => {
         await result.current.setTime(20, 30);
       });
 
-      expect(mockWrite).toHaveBeenCalledWith({ enabled: true, hour: 20, minute: 30 });
-      expect(mockSchedule).toHaveBeenCalledWith({ hour: 20, minute: 30 });
+      expect(mockWrite).toHaveBeenCalledWith({
+        enabled: true,
+        hour: 20,
+        minute: 30,
+        reminderType: 'daily',
+        doNotDisturbStart: null,
+        doNotDisturbEnd: null,
+      });
+      expect(mockSchedule).toHaveBeenCalledWith({ hour: 20, minute: 30 }, { reminderType: 'daily' });
       expect(mockQueuePushReminderPreference).toHaveBeenCalledWith({
         enabled: true,
         hour: 20,
@@ -148,8 +200,38 @@ describe('useReminderSettings', () => {
         await result.current.setTime(20, 30);
       });
 
-      expect(mockWrite).toHaveBeenCalledWith({ enabled: false, hour: 20, minute: 30 });
+      expect(mockWrite).toHaveBeenCalledWith({
+        enabled: false,
+        hour: 20,
+        minute: 30,
+        reminderType: 'daily',
+        doNotDisturbStart: null,
+        doNotDisturbEnd: null,
+      });
       expect(mockSchedule).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('setReminderType', () => {
+    it('persists weekly type and schedules weekly reminder', async () => {
+      mockRead.mockResolvedValueOnce({
+        enabled: true,
+        hour: 9,
+        minute: 0,
+        reminderType: 'daily',
+        doNotDisturbStart: null,
+        doNotDisturbEnd: null,
+      });
+
+      const { result } = renderHook(() => useReminderSettings());
+      await act(async () => {});
+
+      await act(async () => {
+        await result.current.setReminderType('weekly');
+      });
+
+      expect(mockWrite).toHaveBeenCalledWith(expect.objectContaining({ reminderType: 'weekly' }));
+      expect(mockSchedule).toHaveBeenCalledWith({ hour: 9, minute: 0 }, { reminderType: 'weekly' });
     });
   });
 });

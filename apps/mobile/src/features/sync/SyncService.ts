@@ -139,6 +139,22 @@ async function syncItemToFirestore(
       );
       break;
 
+    case 'user_profile_updated':
+      await setDoc(
+        doc(firestore, 'user_profiles', payload.profileId as string),
+        { ...payload, syncedAt: new Date().toISOString() },
+        { merge: true }
+      );
+      break;
+
+    case 'account_deletion_requested':
+      await setDoc(
+        doc(firestore, 'deletion_requests', payload.profileId as string),
+        { ...payload, syncedAt: new Date().toISOString() },
+        { merge: true }
+      );
+      break;
+
     default:
       // Unknown action — mark as synced so it doesn't block the queue
       break;

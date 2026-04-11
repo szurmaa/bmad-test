@@ -204,4 +204,40 @@ describe('processQueue', () => {
     await expect(processQueue()).resolves.toBeUndefined();
     expect(mockSetDoc).not.toHaveBeenCalled();
   });
+
+  it('syncs user profile updates into the user_profiles collection', async () => {
+    mockGetPending.mockResolvedValueOnce([
+      makeSyncItem({
+        action: 'user_profile_updated',
+        payload: JSON.stringify({
+          profileId: 'profile-1',
+          appearance: 'dark',
+          updatedAt: new Date().toISOString(),
+        }),
+      }),
+    ]);
+
+    await processQueue();
+
+    expect(mockSetDoc).toHaveBeenCalledTimes(1);
+    expect(mockMarkSynced).toHaveBeenCalledWith('sync-1');
+  });
+
+  it('syncs account deletion requests into the deletion_requests collection', async () => {
+    mockGetPending.mockResolvedValueOnce([
+      makeSyncItem({
+        action: 'account_deletion_requested',
+        payload: JSON.stringify({
+          profileId: 'profile-1',
+          retentionDays: 30,
+          requestedAt: new Date().toISOString(),
+        }),
+      }),
+    ]);
+
+    await processQueue();
+
+    expect(mockSetDoc).toHaveBeenCalledTimes(1);
+    expect(mockMarkSynced).toHaveBeenCalledWith('sync-1');
+  });
 });

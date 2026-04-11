@@ -4,7 +4,7 @@ import { describe, expect, it, jest, beforeEach } from '@jest/globals';
 jest.mock('expo-notifications', () => ({
   scheduleNotificationAsync: jest.fn(async () => 'test-notification-id'),
   cancelScheduledNotificationAsync: jest.fn(async () => {}),
-  SchedulableTriggerInputTypes: { DAILY: 'DAILY' },
+  SchedulableTriggerInputTypes: { DAILY: 'DAILY', WEEKLY: 'WEEKLY' },
 }));
 
 import * as Notifications from 'expo-notifications';
@@ -50,6 +50,22 @@ describe('scheduleReminderNotification', () => {
   it('returns the notification identifier', async () => {
     const id = await scheduleReminderNotification({ hour: 7, minute: 0 });
     expect(id).toBe('test-notification-id');
+  });
+
+  it('schedules WEEKLY trigger when reminder type is weekly', async () => {
+    await scheduleReminderNotification({ hour: 11, minute: 45 }, { reminderType: 'weekly' });
+
+    const [call] = mockSchedule.mock.calls;
+    const arg = call[0] as any;
+    expect(arg.trigger.type).toBe('WEEKLY');
+    expect(arg.trigger.hour).toBe(11);
+    expect(arg.trigger.minute).toBe(45);
+  });
+
+  it('does not schedule local push when reminder type is email_only', async () => {
+    const id = await scheduleReminderNotification({ hour: 7, minute: 0 }, { reminderType: 'email_only' });
+    expect(id).toBe('');
+    expect(mockSchedule).not.toHaveBeenCalled();
   });
 });
 
