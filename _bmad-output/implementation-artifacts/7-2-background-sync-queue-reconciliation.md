@@ -1,6 +1,6 @@
 # Story 7.2: Background Sync Queue Reconciliation
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -34,6 +34,17 @@ So that my progress is preserved without manual steps.
 - Integration tests: Offline action → queue → sync → Firebase updated
 - Network simulation: Offline → action → regain connectivity → verify sync
 - E2E tests: End-to-end offline action → sync → remote reflects local
+
+## Dev Record
+
+- Created `src/features/sync/SyncService.ts`:
+  - `getFirestoreInstance()` — lazy Firebase init, returns null if API key is a placeholder (silent skip)
+  - `syncItemToFirestore()` — dispatches to correct Firestore collection by action type (`roll_created`, `roll_completed`, `roll_rerolled`, `mood_logged`); unknown actions marked synced to unblock queue
+  - `processQueue()` — reads up to 50 pending items; skips items with `retry_count >= 5`; marks synced on success; calls `incrementSyncRetryCount` on transient failure
+  - Malformed payloads marked synced immediately to prevent queue blockage
+- Updated `src/app/_layout.tsx` — `AppState.addEventListener('change')` triggers `processQueue()` on foreground; also runs on initial app mount
+- Unit tests: `SyncService.test.ts` — 7 tests covering all branches (passing)
+- TypeScript: clean; 43 total tests passing
 
 ## References
 

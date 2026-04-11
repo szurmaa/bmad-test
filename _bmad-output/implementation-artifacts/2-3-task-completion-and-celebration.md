@@ -1,6 +1,6 @@
 # Story 2.3: Task Completion and Celebration
 
-Status: in-progress
+Status: done
 
 ## Story
 

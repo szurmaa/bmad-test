@@ -1,6 +1,6 @@
 # Story 5.2: Skip Without Re-Prompting
 
-Status: in-progress
+Status: done
 
 ## Story
 

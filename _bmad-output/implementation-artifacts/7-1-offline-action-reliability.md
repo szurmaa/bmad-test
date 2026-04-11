@@ -1,6 +1,6 @@
 # Story 7.1: Offline Action Reliability
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -34,6 +34,13 @@ So that connectivity does not block daily use.
 - Integration tests: Offline actions → persisted locally
 - Simulated offline tests: Disable network → perform actions → re-enable → verify state
 - E2E tests: Complete workflow offline, relaunch offline, verify state preserved
+
+## Dev Record
+
+- SQLite (`schema.ts`) was already the source of truth for all writes — roll, complete, reroll, mood
+- Added `queueForSync` calls to `src/hooks/useDailyRollInit.ts` after each action (`roll_created`, `roll_completed`, `roll_rerolled`, `mood_logged`) — fire-and-forget (`.catch(() => {})`), never blocks UI
+- Added `incrementSyncRetryCount` to `src/db/schema.ts`
+- All actions already work fully offline via SQLite — no blocking network calls in any user-facing path
 
 ## References
 

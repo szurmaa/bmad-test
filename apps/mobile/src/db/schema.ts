@@ -360,4 +360,15 @@ export const getMoodLogForRoll = async (rollId: string): Promise<{ mood_value: n
   return result ?? null;
 };
 
+/**
+ * Increment retry_count for a sync queue item (called after a failed sync attempt)
+ */
+export const incrementSyncRetryCount = async (syncId: string): Promise<void> => {
+  const database = await getDatabase();
+  await database.runAsync(
+    `UPDATE sync_queue SET retry_count = retry_count + 1 WHERE id = ?`,
+    [syncId]
+  );
+};
+
 export default getDatabase;

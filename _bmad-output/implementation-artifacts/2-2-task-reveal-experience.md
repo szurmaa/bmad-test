@@ -1,6 +1,6 @@
 # Story 2.2: Task Reveal Experience
 
-Status: in-progress
+Status: done
 
 ## Story
 

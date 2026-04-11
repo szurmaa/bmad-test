@@ -1,6 +1,6 @@
 # Story 2.1: Daily Roll Eligibility and Task Selection
 
-Status: in-progress
+Status: done
 
 ## Story
 

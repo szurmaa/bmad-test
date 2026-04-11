@@ -2,11 +2,12 @@ import { Slot, useRouter } from 'expo-router';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import React from 'react';
-import { useColorScheme } from 'react-native';
+import { AppState, useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import AppTabs from '@/components/app-tabs';
 import { parseReminderDeepLink } from '@/features/notifications/services/NotificationSchedulerService';
+import { processQueue } from '@/features/sync/SyncService';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -32,7 +33,20 @@ export default function TabLayout() {
       }
     });
 
-    return () => subscription.remove();
+    // Trigger background sync whenever the app comes to the foreground
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        processQueue().catch(() => {});
+      }
+    });
+
+    // Also attempt sync on initial mount
+    processQueue().catch(() => {});
+
+    return () => {
+      subscription.remove();
+      appStateSubscription.remove();
+    };
   }, [router]);
 
   return (

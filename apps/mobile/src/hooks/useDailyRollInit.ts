@@ -9,6 +9,7 @@ import {
   getTodayRoll,
   logMood as dbLogMood,
   markRollComplete,
+  queueForSync,
   rerollDailyTask,
   seedTaskLibrary,
 } from '@/db/schema';
@@ -139,6 +140,16 @@ export const useDailyRollInit = () => {
         createdAt: nextRoll.createdAt,
       });
 
+      // Queue for background Firebase sync (fire-and-forget, never blocks UI)
+      queueForSync('roll_created', {
+        rollId: nextRoll.id,
+        date: nextRoll.date,
+        taskId: nextRoll.taskId,
+        taskCategory: nextRoll.taskCategory,
+        taskTitle: nextRoll.taskTitle,
+        createdAt: nextRoll.createdAt,
+      }).catch(() => {});
+
       const daysPlayedCount = await getDaysPlayed();
       hydrateFromDatabase({ currentRoll: nextRoll, daysPlayed: daysPlayedCount });
     } catch (err) {
@@ -158,6 +169,12 @@ export const useDailyRollInit = () => {
     try {
       await markRollComplete(currentRoll.id);
       completeRoll();
+
+      queueForSync('roll_completed', {
+        rollId: currentRoll.id,
+        date: currentRoll.date,
+        completedAt: new Date().toISOString(),
+      }).catch(() => {});
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unable to save completion';
       setError(errorMessage);
@@ -188,6 +205,15 @@ export const useDailyRollInit = () => {
         description: nextTask.description,
       });
 
+      queueForSync('roll_rerolled', {
+        rollId: currentRoll.id,
+        date: currentRoll.date,
+        newTaskId: nextTask.id,
+        newTaskCategory: nextTask.category,
+        newTaskTitle: nextTask.title,
+        rerolledAt: new Date().toISOString(),
+      }).catch(() => {});
+
       rerollToday({
         id: nextTask.id,
         category: nextTask.category,
@@ -217,6 +243,14 @@ export const useDailyRollInit = () => {
       const moodLogId = `mood_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       await dbLogMood(moodLogId, currentRoll.id, moodValue);
       storeMoodLog(moodValue);
+
+      queueForSync('mood_logged', {
+        moodLogId,
+        rollId: currentRoll.id,
+        date: currentRoll.date,
+        moodValue,
+        loggedAt: new Date().toISOString(),
+      }).catch(() => {});
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Could not save mood';
       setError(errorMessage);

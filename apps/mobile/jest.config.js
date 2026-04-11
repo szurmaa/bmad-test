@@ -10,10 +10,11 @@ const config = {
     '^expo-modules-core$': '<rootDir>/node_modules/expo-modules-core/index.js',
     '^expo-modules-core/src/polyfill/dangerous-internal$':
       '<rootDir>/test/mocks/expo-modules-core-dangerous-internal.js',
+    '^expo-sqlite/localStorage/install$': '<rootDir>/__mocks__/expo-sqlite/localStorage/install.js',
   },
   testPathIgnorePatterns: ['/node_modules/', '/e2e/'],
   transformIgnorePatterns: [
-    'node_modules/(?!(?:react-native|@react-native|expo(?:nent)?|expo-modules-core|@expo|expo-router|@expo-google-fonts|react-navigation|@react-navigation)/)',
+    'node_modules/(?!(?:react-native|@react-native|expo(?:nent)?|expo-notifications|expo-modules-core|@expo|expo-router|@expo-google-fonts|react-navigation|@react-navigation|firebase)/)',
   ],
 };
 

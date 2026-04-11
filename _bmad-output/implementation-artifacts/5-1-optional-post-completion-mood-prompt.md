@@ -1,6 +1,6 @@
 # Story 5.1: Optional Post-Completion Mood Prompt
 
-Status: in-progress
+Status: done
 
 ## Story
 

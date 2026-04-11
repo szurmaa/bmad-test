@@ -1,6 +1,6 @@
 # Story 3.2: Reroll State Messaging
 
-Status: in-progress
+Status: done
 
 
 ## Story

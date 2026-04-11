@@ -1,6 +1,6 @@
 # Story 4.2: No Streak-Penalty Messaging
 
-Status: in-progress
+Status: done
 
 ## Story
 

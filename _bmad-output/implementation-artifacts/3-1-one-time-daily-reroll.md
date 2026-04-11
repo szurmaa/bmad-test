@@ -1,6 +1,6 @@
 # Story 3.1: One-Time Daily Reroll
 
-Status: in-progress
+Status: done
 
 
 ## Story
