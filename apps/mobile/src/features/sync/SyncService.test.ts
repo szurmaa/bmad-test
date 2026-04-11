@@ -136,6 +136,67 @@ describe('processQueue', () => {
     expect(mockMarkSynced).toHaveBeenCalledWith('sync-3');
   });
 
+  it('syncs product events into the product_events collection', async () => {
+    mockGetPending.mockResolvedValueOnce([
+      makeSyncItem({
+        action: 'product_event',
+        payload: JSON.stringify({
+          eventId: 'evt-1',
+          name: 'daily_roll',
+          action: 'roll_today',
+          userId: 'user-1',
+          cohort: '2026-04-11',
+          timestamp: new Date().toISOString(),
+          properties: { daysPlayed: 3 },
+        }),
+      }),
+    ]);
+
+    await processQueue();
+
+    expect(mockSetDoc).toHaveBeenCalledTimes(1);
+    expect(mockMarkSynced).toHaveBeenCalledWith('sync-1');
+  });
+
+  it('syncs crash reports into the crash_reports collection', async () => {
+    mockGetPending.mockResolvedValueOnce([
+      makeSyncItem({
+        action: 'crash_report',
+        payload: JSON.stringify({
+          crashId: 'crash-1',
+          message: 'Boom',
+          stack: 'trace',
+          breadcrumbs: [],
+          release: { appVersion: '1.0.0' },
+        }),
+      }),
+    ]);
+
+    await processQueue();
+
+    expect(mockSetDoc).toHaveBeenCalledTimes(1);
+    expect(mockMarkSynced).toHaveBeenCalledWith('sync-1');
+  });
+
+  it('syncs crash alerts into the team_alerts collection', async () => {
+    mockGetPending.mockResolvedValueOnce([
+      makeSyncItem({
+        action: 'crash_alert',
+        payload: JSON.stringify({
+          alertId: 'alert-1',
+          channel: 'team-reliability',
+          crashFreeRate: 98.2,
+          threshold: 99.5,
+        }),
+      }),
+    ]);
+
+    await processQueue();
+
+    expect(mockSetDoc).toHaveBeenCalledTimes(1);
+    expect(mockMarkSynced).toHaveBeenCalledWith('sync-1');
+  });
+
   it('returns early when getPendingSyncItems throws', async () => {
     mockGetPending.mockRejectedValueOnce(new Error('db error') as never);
 

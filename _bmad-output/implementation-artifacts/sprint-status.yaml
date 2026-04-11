@@ -82,9 +82,9 @@ development_status:
   epic-8-retrospective: done
 
   # Epic 9
-  epic-9: backlog
-  9-1-product-event-instrumentation: backlog
-  9-2-crash-reporting-and-alerting: backlog
+  epic-9: done
+  9-1-product-event-instrumentation: done
+  9-2-crash-reporting-and-alerting: done
   epic-9-retrospective: optional
 
   # Epic 10

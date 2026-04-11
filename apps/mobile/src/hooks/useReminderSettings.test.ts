@@ -12,6 +12,14 @@ jest.mock('@/features/notifications/services/NotificationSchedulerService', () =
   cancelReminderNotification: jest.fn(async () => {}),
 }));
 
+jest.mock('@/features/analytics/AnalyticsService', () => ({
+  trackProductEvent: jest.fn(async () => ({})),
+}));
+
+jest.mock('@/features/crash-reporting/CrashReportingService', () => ({
+  addCrashBreadcrumb: jest.fn(),
+}));
+
 import {
   readReminderPreference,
   writeReminderPreference,

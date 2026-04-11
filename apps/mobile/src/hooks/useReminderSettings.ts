@@ -9,6 +9,8 @@ import {
   cancelReminderNotification,
   scheduleReminderNotification,
 } from '@/features/notifications/services/NotificationSchedulerService';
+import { trackProductEvent } from '@/features/analytics/AnalyticsService';
+import { addCrashBreadcrumb } from '@/features/crash-reporting/CrashReportingService';
 
 export type UseReminderSettingsReturn = {
   isLoading: boolean;
@@ -47,8 +49,18 @@ export function useReminderSettings(): UseReminderSettingsReturn {
 
     if (value) {
       await scheduleReminderNotification({ hour: next.hour, minute: next.minute });
+      await trackProductEvent('reminder_enabled', 'enable_reminder', {
+        hour: next.hour,
+        minute: next.minute,
+      });
+      addCrashBreadcrumb('reminder_enabled', { hour: next.hour, minute: next.minute });
     } else {
       await cancelReminderNotification();
+      await trackProductEvent('reminder_disabled', 'disable_reminder', {
+        hour: next.hour,
+        minute: next.minute,
+      });
+      addCrashBreadcrumb('reminder_disabled', { hour: next.hour, minute: next.minute });
     }
   }, [pref]);
 
@@ -59,6 +71,11 @@ export function useReminderSettings(): UseReminderSettingsReturn {
 
     if (next.enabled) {
       await scheduleReminderNotification({ hour, minute });
+      await trackProductEvent('reminder_time_updated', 'update_reminder_time', {
+        hour,
+        minute,
+      });
+      addCrashBreadcrumb('reminder_time_updated', { hour, minute });
     }
   }, [pref]);
 

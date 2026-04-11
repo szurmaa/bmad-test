@@ -13,6 +13,8 @@ import {
   rerollDailyTask,
   seedTaskLibrary,
 } from '@/db/schema';
+import { trackProductEvent } from '@/features/analytics/AnalyticsService';
+import { addCrashBreadcrumb } from '@/features/crash-reporting/CrashReportingService';
 import { SEED_TASKS } from '@/types/task';
 
 /**
@@ -152,6 +154,17 @@ export const useDailyRollInit = () => {
 
       const daysPlayedCount = await getDaysPlayed();
       hydrateFromDatabase({ currentRoll: nextRoll, daysPlayed: daysPlayedCount });
+
+      trackProductEvent('daily_roll', 'roll_today', {
+        rollId: nextRoll.id,
+        taskId: nextRoll.taskId,
+        taskCategory: nextRoll.taskCategory,
+        daysPlayed: daysPlayedCount,
+      }).catch(() => {});
+      addCrashBreadcrumb('daily_roll_created', {
+        rollId: nextRoll.id,
+        daysPlayed: daysPlayedCount,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Roll failed';
       setError(errorMessage);
@@ -175,6 +188,16 @@ export const useDailyRollInit = () => {
         date: currentRoll.date,
         completedAt: new Date().toISOString(),
       }).catch(() => {});
+
+      trackProductEvent('daily_roll_completed', 'complete_today', {
+        rollId: currentRoll.id,
+        daysPlayed,
+        taskId: currentRoll.taskId,
+      }).catch(() => {});
+      addCrashBreadcrumb('daily_roll_completed', {
+        rollId: currentRoll.id,
+        daysPlayed,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unable to save completion';
       setError(errorMessage);
@@ -214,6 +237,17 @@ export const useDailyRollInit = () => {
         rerolledAt: new Date().toISOString(),
       }).catch(() => {});
 
+      trackProductEvent('reroll_used', 'reroll_today', {
+        rollId: currentRoll.id,
+        previousTaskId: currentRoll.taskId,
+        newTaskId: nextTask.id,
+        daysPlayed,
+      }).catch(() => {});
+      addCrashBreadcrumb('reroll_used', {
+        rollId: currentRoll.id,
+        nextTaskId: nextTask.id,
+      });
+
       rerollToday({
         id: nextTask.id,
         category: nextTask.category,
@@ -251,6 +285,16 @@ export const useDailyRollInit = () => {
         moodValue,
         loggedAt: new Date().toISOString(),
       }).catch(() => {});
+
+      trackProductEvent('mood_submitted', 'log_mood', {
+        rollId: currentRoll.id,
+        moodValue,
+        daysPlayed,
+      }).catch(() => {});
+      addCrashBreadcrumb('mood_submitted', {
+        rollId: currentRoll.id,
+        moodValue,
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Could not save mood';
       setError(errorMessage);

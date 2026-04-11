@@ -99,6 +99,30 @@ async function syncItemToFirestore(
       );
       break;
 
+    case 'product_event':
+      await setDoc(
+        doc(firestore, 'product_events', payload.eventId as string),
+        { ...payload, syncedAt: new Date().toISOString() },
+        { merge: true }
+      );
+      break;
+
+    case 'crash_report':
+      await setDoc(
+        doc(firestore, 'crash_reports', payload.crashId as string),
+        { ...payload, syncedAt: new Date().toISOString() },
+        { merge: true }
+      );
+      break;
+
+    case 'crash_alert':
+      await setDoc(
+        doc(firestore, 'team_alerts', payload.alertId as string),
+        { ...payload, syncedAt: new Date().toISOString() },
+        { merge: true }
+      );
+      break;
+
     default:
       // Unknown action — mark as synced so it doesn't block the queue
       break;

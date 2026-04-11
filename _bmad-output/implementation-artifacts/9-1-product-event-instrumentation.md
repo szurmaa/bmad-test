@@ -1,6 +1,6 @@
 # Story 9.1: Product Event Instrumentation
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -33,6 +33,23 @@ So that engagement trends are measurable.
 - Unit tests: Event emission logic, event schema validation
 - Integration tests: Perform actions → events logged → appear in analytics
 - E2E tests: Series of interactions → verify events in dashboard after propagation delay
+
+## Dev Record
+
+- Added analytics contract + event service in `apps/mobile/src/features/analytics/AnalyticsService.ts`:
+	- canonical event names: `daily_roll`, `daily_roll_completed`, `reroll_used`, `mood_submitted`, `reminder_enabled`, `reminder_disabled`, `reminder_time_updated`
+	- required dimensions enforced via Zod: `userId`, `cohort`, `timestamp`, `action`
+	- anonymous analytics identity persisted locally
+- Added analytics tests in `apps/mobile/src/features/analytics/AnalyticsService.test.ts`
+- Emitted events from product action hooks:
+	- `apps/mobile/src/hooks/useDailyRollInit.ts` for roll, complete, reroll, mood
+	- `apps/mobile/src/hooks/useReminderSettings.ts` for reminder enable/disable/time update
+- Extended sync delivery in `apps/mobile/src/features/sync/SyncService.ts`:
+	- `product_event` queue items now sync to Firestore collection `product_events`
+- Added sync coverage for `product_event` delivery in `apps/mobile/src/features/sync/SyncService.test.ts`
+- Validation run:
+	- TypeScript: clean (`npx tsc --noEmit`)
+	- Tests: 18 passing (`AnalyticsService`, `SyncService`, `useReminderSettings`)
 
 ## References
 
