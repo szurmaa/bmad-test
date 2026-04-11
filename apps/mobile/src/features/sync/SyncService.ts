@@ -123,6 +123,22 @@ async function syncItemToFirestore(
       );
       break;
 
+    case 'push_token_registration':
+      await setDoc(
+        doc(firestore, 'device_push_tokens', payload.registrationId as string),
+        { ...payload, syncedAt: new Date().toISOString() },
+        { merge: true }
+      );
+      break;
+
+    case 'push_reminder_preference':
+      await setDoc(
+        doc(firestore, 'device_notification_preferences', payload.registrationId as string),
+        { ...payload, syncedAt: new Date().toISOString() },
+        { merge: true }
+      );
+      break;
+
     default:
       // Unknown action — mark as synced so it doesn't block the queue
       break;

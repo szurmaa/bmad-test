@@ -1,6 +1,6 @@
 # Story 10.2: In-App Engagement Campaigns
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -33,6 +33,32 @@ So that users see contextual offers and challenges.
 - Unit tests: Campaign targeting logic, condition evaluation
 - Integration tests: Load campaigns → filter by cohort → verify display criteria
 - E2E tests: User in cohort → sees campaign → interacts → metrics logged
+
+## Dev Record
+
+- Added campaign engine service in `apps/mobile/src/features/engagement/InAppCampaignService.ts`:
+	- fetches campaign definitions from Firestore `campaigns`
+	- validates campaign type/variants and filters invalid records
+	- evaluates active window and targeting by cohort, min days played, and app version
+	- tracks campaign interactions (impression, click, dismiss) via product event analytics
+- Added campaign runtime hook in `apps/mobile/src/hooks/useInAppCampaigns.ts`:
+	- loads active campaigns and selects top-priority eligible banner
+	- tracks impression when campaign banner is surfaced
+	- supports dismiss persistence and click/dismiss event tracking
+- Integrated campaign UX into `apps/mobile/src/features/onboarding/components/HomeRollShell.tsx`:
+	- renders contextual banner with headline/body/CTA
+	- supports dismiss action and CTA route deep-linking
+- Extended analytics event contract in `apps/mobile/src/features/analytics/AnalyticsService.ts`:
+	- `campaign_impression`
+	- `campaign_clicked`
+	- `campaign_dismissed`
+- Added tests:
+	- `apps/mobile/src/features/engagement/InAppCampaignService.test.ts`
+	- `apps/mobile/src/hooks/useInAppCampaigns.test.ts`
+	- updated `apps/mobile/src/features/onboarding/components/HomeRollShell.test.tsx`
+
+Validation run:
+- Tests: 25 passing in focused suites including campaign targeting, hook behavior, and home-shell integration
 
 ## References
 

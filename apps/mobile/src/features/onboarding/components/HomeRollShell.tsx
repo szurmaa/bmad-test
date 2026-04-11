@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -12,10 +13,12 @@ import { MoodPrompt } from '@/features/daily-roll/components/MoodPrompt';
 import { RerollStateIndicator } from '@/features/daily-roll/components/RerollStateIndicator';
 import { TaskRevealCard } from '@/features/daily-roll/components/TaskRevealCard';
 import { useDailyRollInit } from '@/hooks/useDailyRollInit';
+import { useInAppCampaigns } from '@/hooks/useInAppCampaigns';
 import { useTheme } from '@/hooks/use-theme';
 
 export function HomeRollShell() {
   const theme = useTheme();
+  const router = useRouter();
   const {
     completeToday,
     currentRoll,
@@ -30,6 +33,7 @@ export function HomeRollShell() {
     rollToday,
     skipMoodToday,
   } = useDailyRollInit();
+  const { bannerCampaign, dismissBannerCampaign, trackBannerClick } = useInAppCampaigns();
   const [showCompletionMoment, setShowCompletionMoment] = React.useState(false);
   const showMoodPrompt = Boolean(
     currentRoll?.completed && !currentRoll?.moodLogged && !showCompletionMoment
@@ -64,6 +68,45 @@ export function HomeRollShell() {
                 ? 'Your task stays here all day, even if you leave and come back later.'
                 : 'No setup ceremony. No category picking. Just your daily roll when you are ready.'}
             </ThemedText>
+
+            {bannerCampaign ? (
+              <View
+                style={[styles.campaignBanner, { backgroundColor: theme.backgroundElement }]}
+                testID="campaign-banner">
+                <ThemedText type="defaultSemiBold">{bannerCampaign.variant.headline}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {bannerCampaign.variant.body}
+                </ThemedText>
+                <View style={styles.campaignActions}>
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => {
+                      void dismissBannerCampaign();
+                    }}
+                    style={({ pressed }) => [styles.campaignDismissButton, { opacity: pressed ? 0.7 : 1 }]}
+                    testID="campaign-dismiss">
+                    <ThemedText type="small" themeColor="textSecondary">
+                      Dismiss
+                    </ThemedText>
+                  </Pressable>
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => {
+                      void trackBannerClick();
+                      router.push(bannerCampaign.variant.ctaRoute as never);
+                    }}
+                    style={({ pressed }) => [
+                      styles.campaignCtaButton,
+                      { backgroundColor: theme.text, opacity: pressed ? 0.9 : 1 },
+                    ]}
+                    testID="campaign-cta">
+                    <ThemedText type="small" style={styles.campaignCtaText}>
+                      {bannerCampaign.variant.ctaLabel}
+                    </ThemedText>
+                  </Pressable>
+                </View>
+              </View>
+            ) : null}
           </View>
 
           {isInitializing ? (
@@ -173,6 +216,34 @@ const styles = StyleSheet.create({
   },
   body: {
     maxWidth: 560,
+  },
+  campaignBanner: {
+    borderRadius: Spacing.three,
+    padding: Spacing.three,
+    gap: Spacing.two,
+    borderWidth: 1,
+    borderColor: '#D4D4D8',
+  },
+  campaignActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: Spacing.one,
+  },
+  campaignDismissButton: {
+    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.one,
+  },
+  campaignCtaButton: {
+    minHeight: 36,
+    borderRadius: Spacing.two,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.three,
+  },
+  campaignCtaText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   loadingState: {
     alignItems: 'center',

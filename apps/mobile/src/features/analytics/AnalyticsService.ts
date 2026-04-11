@@ -13,6 +13,9 @@ export const analyticsEventNames = [
   'reminder_enabled',
   'reminder_disabled',
   'reminder_time_updated',
+  'campaign_impression',
+  'campaign_clicked',
+  'campaign_dismissed',
 ] as const;
 
 export type AnalyticsEventName = (typeof analyticsEventNames)[number];

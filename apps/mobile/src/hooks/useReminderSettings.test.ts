@@ -20,6 +20,10 @@ jest.mock('@/features/crash-reporting/CrashReportingService', () => ({
   addCrashBreadcrumb: jest.fn(),
 }));
 
+jest.mock('@/features/notifications/services/PushNotificationService', () => ({
+  queuePushReminderPreference: jest.fn(async () => {}),
+}));
+
 import {
   readReminderPreference,
   writeReminderPreference,
@@ -28,12 +32,14 @@ import {
   cancelReminderNotification,
   scheduleReminderNotification,
 } from '@/features/notifications/services/NotificationSchedulerService';
+import { queuePushReminderPreference } from '@/features/notifications/services/PushNotificationService';
 import { useReminderSettings } from '@/hooks/useReminderSettings';
 
 const mockRead = jest.mocked(readReminderPreference);
 const mockWrite = jest.mocked(writeReminderPreference);
 const mockSchedule = jest.mocked(scheduleReminderNotification);
 const mockCancel = jest.mocked(cancelReminderNotification);
+const mockQueuePushReminderPreference = jest.mocked(queuePushReminderPreference);
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -83,6 +89,11 @@ describe('useReminderSettings', () => {
 
       expect(mockWrite).toHaveBeenCalledWith({ enabled: true, hour: 9, minute: 0 });
       expect(mockSchedule).toHaveBeenCalledWith({ hour: 9, minute: 0 });
+      expect(mockQueuePushReminderPreference).toHaveBeenCalledWith({
+        enabled: true,
+        hour: 9,
+        minute: 0,
+      });
       expect(mockCancel).not.toHaveBeenCalled();
       expect(result.current.enabled).toBe(true);
     });
@@ -98,6 +109,11 @@ describe('useReminderSettings', () => {
 
       expect(mockWrite).toHaveBeenCalledWith({ enabled: false, hour: 9, minute: 0 });
       expect(mockCancel).toHaveBeenCalledTimes(1);
+      expect(mockQueuePushReminderPreference).toHaveBeenCalledWith({
+        enabled: false,
+        hour: 9,
+        minute: 0,
+      });
       expect(mockSchedule).not.toHaveBeenCalled();
       expect(result.current.enabled).toBe(false);
     });
@@ -115,6 +131,11 @@ describe('useReminderSettings', () => {
 
       expect(mockWrite).toHaveBeenCalledWith({ enabled: true, hour: 20, minute: 30 });
       expect(mockSchedule).toHaveBeenCalledWith({ hour: 20, minute: 30 });
+      expect(mockQueuePushReminderPreference).toHaveBeenCalledWith({
+        enabled: true,
+        hour: 20,
+        minute: 30,
+      });
       expect(result.current.hour).toBe(20);
       expect(result.current.minute).toBe(30);
     });

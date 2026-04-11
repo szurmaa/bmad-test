@@ -4,8 +4,22 @@ import { act, fireEvent, render, screen } from '@testing-library/react-native';
 
 import { HomeRollShell } from '@/features/onboarding/components/HomeRollShell';
 
+jest.mock('expo-router', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+}));
+
 jest.mock('@/hooks/useDailyRollInit', () => ({
   useDailyRollInit: jest.fn(),
+}));
+
+jest.mock('@/hooks/useInAppCampaigns', () => ({
+  useInAppCampaigns: jest.fn(() => ({
+    bannerCampaign: null,
+    dismissBannerCampaign: jest.fn(async () => {}),
+    trackBannerClick: jest.fn(async () => {}),
+  })),
 }));
 
 const mockedModule = jest.requireMock('@/hooks/useDailyRollInit') as {

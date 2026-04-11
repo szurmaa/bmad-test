@@ -11,6 +11,7 @@ import {
   installGlobalCrashHandler,
   startCrashReportingSession,
 } from '@/features/crash-reporting/CrashReportingService';
+import { registerDevicePushToken } from '@/features/notifications/services/PushNotificationService';
 import { parseReminderDeepLink } from '@/features/notifications/services/NotificationSchedulerService';
 import { processQueue } from '@/features/sync/SyncService';
 import { refreshTaskCatalogIfNeeded } from '@/features/task-catalog-refresh/TaskCatalogRefreshService';
@@ -53,6 +54,7 @@ export default function TabLayout() {
     });
 
     // Also attempt sync on initial mount
+    registerDevicePushToken().catch(() => {});
     processQueue().catch(() => {});
     refreshTaskCatalogIfNeeded().catch(() => {});
 
