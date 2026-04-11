@@ -14,7 +14,20 @@ export type LocalOnboardingProfile = {
   onboardingCompletedAt: string | null;
 };
 
+export type ReminderPreference = {
+  enabled: boolean;
+  hour: number; // 0-23
+  minute: number; // 0-59
+};
+
 const STORAGE_KEY = 'habit-dice.onboarding-profile';
+const REMINDER_PREF_KEY = 'habit-dice.reminder-preference';
+
+const DEFAULT_REMINDER: ReminderPreference = {
+  enabled: false,
+  hour: 9,
+  minute: 0,
+};
 
 const defaultProfile = (): LocalOnboardingProfile => ({
   notificationChoice: null,
@@ -51,4 +64,27 @@ export async function writeLocalOnboardingProfile(
 
 export async function clearLocalOnboardingProfile(): Promise<void> {
   globalThis.localStorage.removeItem(STORAGE_KEY);
+}
+
+// ---------------------------------------------------------------------------
+// Reminder preference helpers
+// ---------------------------------------------------------------------------
+
+export async function readReminderPreference(): Promise<ReminderPreference> {
+  try {
+    const raw = globalThis.localStorage?.getItem(REMINDER_PREF_KEY);
+    if (!raw) return { ...DEFAULT_REMINDER };
+    const parsed = JSON.parse(raw) as Partial<ReminderPreference>;
+    return {
+      enabled: parsed.enabled ?? DEFAULT_REMINDER.enabled,
+      hour: typeof parsed.hour === 'number' ? parsed.hour : DEFAULT_REMINDER.hour,
+      minute: typeof parsed.minute === 'number' ? parsed.minute : DEFAULT_REMINDER.minute,
+    };
+  } catch {
+    return { ...DEFAULT_REMINDER };
+  }
+}
+
+export async function writeReminderPreference(pref: ReminderPreference): Promise<void> {
+  globalThis.localStorage?.setItem(REMINDER_PREF_KEY, JSON.stringify(pref));
 }

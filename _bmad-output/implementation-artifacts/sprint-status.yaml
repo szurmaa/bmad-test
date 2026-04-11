@@ -73,10 +73,10 @@ development_status:
   5-2-habit-filtering-and-history-visualization: backlog
   epic-5-retrospective: optional
 
-  # Epic 6: Habit Customization
-  epic-6: backlog
-  6-1-habit-creation-and-basic-properties: backlog
-  6-2-emoji-selection-and-ui-personalization: backlog
+  # Epic 6: Push Reminders & Daily Re-engagement
+  epic-6: done
+  6-1-reminder-scheduling-and-settings: done
+  6-2-notification-deep-link-to-roll: done
   epic-6-retrospective: optional
 
   # Epic 7: Multi-Language & Localization

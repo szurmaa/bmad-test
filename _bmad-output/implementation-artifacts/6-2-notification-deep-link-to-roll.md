@@ -1,6 +1,6 @@
 # Story 6.2: Notification Deep Link to Roll
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -32,6 +32,13 @@ So that I can act quickly.
 - Unit tests: Deep-link URI generation and parsing
 - Integration tests: Notification tap → app navigates to roll
 - E2E tests: From terminated state, notification tap → roll screen loads with correct state
+
+## Dev Record
+
+- `parseReminderDeepLink` in `NotificationSchedulerService.ts` parses `habitdice://roll` and returns `'roll'`; returns `null` for unrecognised URLs
+- Notification content `data.url` set to `habitdice://roll` in `scheduleReminderNotification`
+- Updated `src/app/_layout.tsx` — `addNotificationResponseReceivedListener` handler navigates to `/` when deep-link target is `'roll'`; `getLastNotificationResponseAsync()` handles cold-start case; subscription cleaned up on unmount
+- Unit tests for `parseReminderDeepLink` included in `NotificationSchedulerService.test.ts`
 
 ## References
 

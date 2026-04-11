@@ -1,6 +1,6 @@
 # Story 6.1: Reminder Scheduling and Settings
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -33,6 +33,16 @@ So that reminders match my routine.
 - Unit tests: Settings persistence, time validation
 - Integration tests: Enable reminder → scheduled; disable → cancelled
 - E2E tests: Set reminder time → notification fires at that time; disable → stops
+
+## Dev Record
+
+- Created `src/features/notifications/services/NotificationSchedulerService.ts` — `scheduleReminderNotification`, `cancelReminderNotification`, `parseReminderDeepLink`
+- Extended `src/db/local-profile-storage.ts` — `ReminderPreference` type, `readReminderPreference`, `writeReminderPreference`
+- Created `src/hooks/useReminderSettings.ts` — reads/writes/applies reminder preferences; schedules or cancels notifications on change
+- Created `src/features/notifications/components/ReminderSettingsCard.tsx` — toggle + HH:MM time input UI
+- Created `src/app/settings.tsx` — settings screen exposing `ReminderSettingsCard`
+- Unit tests: `NotificationSchedulerService.test.ts` (8 tests), `useReminderSettings.test.ts` (7 tests) — all passing
+- TypeScript: clean (`npx tsc --noEmit`)
 
 ## References
 
