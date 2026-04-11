@@ -1,6 +1,6 @@
 # Story 11.2: Offline Functionality & Graceful Degradation
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -34,6 +34,22 @@ So that my experience is seamless even without connectivity.
 - Unit tests: Feature availability logic, state selection
 - Integration tests: Load data → go offline → verify cache → go online → refresh
 - E2E tests: Full offline workflow → connectivity return → data refresh
+
+## Dev Record
+
+- Implemented user-facing offline/read-only communication in home experience:
+	- `apps/mobile/src/features/onboarding/components/HomeRollShell.tsx` now shows offline mode banner
+	- banner copy confirms local persistence and automatic sync on reconnect
+- Added graceful fallback for server-dependent campaign content:
+	- `apps/mobile/src/hooks/useInAppCampaigns.ts` skips remote campaign fetches while offline
+	- exposes `showOfflineCampaignPlaceholder` for UI fallback
+	- home screen renders reconnect prompt when campaigns are unavailable offline
+- Added and updated tests for offline fallback behavior:
+	- `apps/mobile/src/hooks/useInAppCampaigns.test.ts` covers offline placeholder and no-fetch path
+	- `apps/mobile/src/features/onboarding/components/HomeRollShell.test.tsx` updated mocks for connectivity-aware hooks
+
+Validation run:
+- Focused tests: 21 passing across offline state handling, campaign degradation, and sync reliability
 
 ## References
 

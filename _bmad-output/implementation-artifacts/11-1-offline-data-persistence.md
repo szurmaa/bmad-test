@@ -1,6 +1,6 @@
 # Story 11.1: Offline Data Persistence
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -33,6 +33,21 @@ So that I don't lose progress without connectivity.
 - Unit tests: Queue insertion, local storage read/write logic
 - Integration tests: Write offline → toggle connectivity → verify sync
 - E2E tests: Work offline → go online → verify data persists and syncs
+
+## Dev Record
+
+- Reused and validated existing SQLite-first action persistence in `apps/mobile/src/db/schema.ts` and `apps/mobile/src/hooks/useDailyRollInit.ts`:
+	- roll, reroll, completion, and mood actions are persisted locally
+	- queued sync records include action type, payload, created timestamp, and retry metadata
+- Added explicit connectivity detection and reconnect triggers:
+	- new hook `apps/mobile/src/hooks/useConnectivityStatus.ts` provides online/offline state
+	- app lifecycle now listens to network restore in `apps/mobile/src/app/_layout.tsx`
+	- on connectivity restoration, app automatically runs `processQueue()` and task-catalog refresh
+- Added test coverage for connectivity state transitions:
+	- `apps/mobile/src/hooks/useConnectivityStatus.test.ts`
+
+Validation run:
+- Focused tests: 21 passing across sync queue, connectivity hook, and impacted UI/hook flows
 
 ## References
 

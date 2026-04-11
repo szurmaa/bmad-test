@@ -16,9 +16,18 @@ jest.mock('@/hooks/useDailyRollInit', () => ({
 
 jest.mock('@/hooks/useInAppCampaigns', () => ({
   useInAppCampaigns: jest.fn(() => ({
+    isOffline: false,
+    showOfflineCampaignPlaceholder: false,
     bannerCampaign: null,
     dismissBannerCampaign: jest.fn(async () => {}),
     trackBannerClick: jest.fn(async () => {}),
+  })),
+}));
+
+jest.mock('@/hooks/useConnectivityStatus', () => ({
+  useConnectivityStatus: jest.fn(() => ({
+    isOffline: false,
+    isOnline: true,
   })),
 }));
 

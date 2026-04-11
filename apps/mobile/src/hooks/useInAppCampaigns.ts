@@ -5,6 +5,7 @@ import {
   trackCampaignInteraction,
   type ActiveCampaign,
 } from '@/features/engagement/InAppCampaignService';
+import { useConnectivityStatus } from '@/hooks/useConnectivityStatus';
 
 const CAMPAIGN_DISMISSALS_KEY = 'habit-dice.dismissed-campaign-ids';
 
@@ -39,10 +40,18 @@ function persistDismissedCampaignId(campaignId: string): void {
 }
 
 export function useInAppCampaigns() {
+  const { isOffline } = useConnectivityStatus();
   const [bannerCampaign, setBannerCampaign] = useState<ActiveCampaign | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+
+    if (isOffline) {
+      setBannerCampaign(null);
+      return () => {
+        cancelled = true;
+      };
+    }
 
     loadActiveCampaigns()
       .then((campaigns) => {
@@ -77,7 +86,7 @@ export function useInAppCampaigns() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isOffline]);
 
   const dismissBannerCampaign = useCallback(async () => {
     if (!bannerCampaign) {
@@ -108,6 +117,8 @@ export function useInAppCampaigns() {
   }, [bannerCampaign]);
 
   return {
+    isOffline,
+    showOfflineCampaignPlaceholder: isOffline,
     bannerCampaign,
     dismissBannerCampaign,
     trackBannerClick,

@@ -13,12 +13,14 @@ import { MoodPrompt } from '@/features/daily-roll/components/MoodPrompt';
 import { RerollStateIndicator } from '@/features/daily-roll/components/RerollStateIndicator';
 import { TaskRevealCard } from '@/features/daily-roll/components/TaskRevealCard';
 import { useDailyRollInit } from '@/hooks/useDailyRollInit';
+import { useConnectivityStatus } from '@/hooks/useConnectivityStatus';
 import { useInAppCampaigns } from '@/hooks/useInAppCampaigns';
 import { useTheme } from '@/hooks/use-theme';
 
 export function HomeRollShell() {
   const theme = useTheme();
   const router = useRouter();
+  const { isOffline } = useConnectivityStatus();
   const {
     completeToday,
     currentRoll,
@@ -33,7 +35,8 @@ export function HomeRollShell() {
     rollToday,
     skipMoodToday,
   } = useDailyRollInit();
-  const { bannerCampaign, dismissBannerCampaign, trackBannerClick } = useInAppCampaigns();
+  const { bannerCampaign, dismissBannerCampaign, trackBannerClick, showOfflineCampaignPlaceholder } =
+    useInAppCampaigns();
   const [showCompletionMoment, setShowCompletionMoment] = React.useState(false);
   const showMoodPrompt = Boolean(
     currentRoll?.completed && !currentRoll?.moodLogged && !showCompletionMoment
@@ -59,6 +62,14 @@ export function HomeRollShell() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
           <View style={styles.header}>
+            {isOffline ? (
+              <View style={[styles.offlineBanner, { backgroundColor: theme.backgroundElement }]} testID="offline-banner">
+                <ThemedText type="small" themeColor="textSecondary">
+                  Offline mode: your roll progress saves locally and syncs when you reconnect.
+                </ThemedText>
+              </View>
+            ) : null}
+
             <DaysPlayedCounter count={daysPlayed} />
             <ThemedText type="subtitle" style={styles.title}>
               {currentRoll ? 'Today is ready when you are.' : 'Roll once and get one small thing to do.'}
@@ -105,6 +116,16 @@ export function HomeRollShell() {
                     </ThemedText>
                   </Pressable>
                 </View>
+              </View>
+            ) : null}
+
+            {showOfflineCampaignPlaceholder ? (
+              <View
+                style={[styles.campaignPlaceholder, { backgroundColor: theme.backgroundElement }]}
+                testID="campaign-offline-placeholder">
+                <ThemedText type="small" themeColor="textSecondary">
+                  Live campaigns are unavailable offline. Reconnect to refresh challenges and offers.
+                </ThemedText>
               </View>
             ) : null}
           </View>
@@ -217,6 +238,13 @@ const styles = StyleSheet.create({
   body: {
     maxWidth: 560,
   },
+  offlineBanner: {
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.two,
+    borderWidth: 1,
+    borderColor: '#D4D4D8',
+  },
   campaignBanner: {
     borderRadius: Spacing.three,
     padding: Spacing.three,
@@ -244,6 +272,13 @@ const styles = StyleSheet.create({
   campaignCtaText: {
     color: '#FFFFFF',
     fontWeight: '600',
+  },
+  campaignPlaceholder: {
+    borderRadius: Spacing.two,
+    paddingHorizontal: Spacing.two,
+    paddingVertical: Spacing.two,
+    borderWidth: 1,
+    borderColor: '#D4D4D8',
   },
   loadingState: {
     alignItems: 'center',

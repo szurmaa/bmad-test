@@ -6,14 +6,23 @@ jest.mock('@/features/engagement/InAppCampaignService', () => ({
   trackCampaignInteraction: jest.fn(async () => ({})),
 }));
 
+jest.mock('@/hooks/useConnectivityStatus', () => ({
+  useConnectivityStatus: jest.fn(() => ({
+    isOffline: false,
+    isOnline: true,
+  })),
+}));
+
 import {
   loadActiveCampaigns,
   trackCampaignInteraction,
 } from '@/features/engagement/InAppCampaignService';
+import { useConnectivityStatus } from '@/hooks/useConnectivityStatus';
 import { useInAppCampaigns } from '@/hooks/useInAppCampaigns';
 
 const mockLoadActiveCampaigns = jest.mocked(loadActiveCampaigns);
 const mockTrackCampaignInteraction = jest.mocked(trackCampaignInteraction);
+const mockUseConnectivityStatus = jest.mocked(useConnectivityStatus);
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -99,5 +108,16 @@ describe('useInAppCampaigns', () => {
     expect(mockTrackCampaignInteraction).toHaveBeenCalledWith(
       expect.objectContaining({ interaction: 'dismiss' })
     );
+  });
+
+  it('shows offline placeholder and skips campaign loading while offline', async () => {
+    mockUseConnectivityStatus.mockReturnValueOnce({ isOffline: true, isOnline: false });
+
+    const { result } = renderHook(() => useInAppCampaigns());
+    await act(async () => {});
+
+    expect(result.current.bannerCampaign).toBeNull();
+    expect(result.current.showOfflineCampaignPlaceholder).toBe(true);
+    expect(mockLoadActiveCampaigns).not.toHaveBeenCalled();
   });
 });

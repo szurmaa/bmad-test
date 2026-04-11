@@ -3,6 +3,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import * as Notifications from 'expo-notifications';
 import React from 'react';
 import { AppState, useColorScheme } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import AppTabs from '@/components/app-tabs';
@@ -53,6 +54,17 @@ export default function TabLayout() {
       }
     });
 
+    const netInfoSubscription = NetInfo.addEventListener((state) => {
+      const connected = state.isConnected ?? false;
+      const reachable = state.isInternetReachable ?? connected;
+
+      if (connected && reachable) {
+        addCrashBreadcrumb('connectivity_restored');
+        processQueue().catch(() => {});
+        refreshTaskCatalogIfNeeded().catch(() => {});
+      }
+    });
+
     // Also attempt sync on initial mount
     registerDevicePushToken().catch(() => {});
     processQueue().catch(() => {});
@@ -61,6 +73,7 @@ export default function TabLayout() {
     return () => {
       subscription.remove();
       appStateSubscription.remove();
+      netInfoSubscription();
     };
   }, [router]);
 
