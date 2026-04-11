@@ -1,6 +1,6 @@
 # Story 8.1: Admin CRUD for Task Catalog
 
-Status: backlog
+Status: done
 
 ## Story
 
@@ -33,6 +33,21 @@ So that the library remains fresh and relevant.
 - Unit tests: CRUD operations, validation logic, status transitions
 - Integration tests: Create task → persisted; deactivate → removed from active pool
 - E2E tests (admin): Create task → edit → publish → appears/disappears from rolls
+
+## Dev Record
+
+- Added admin catalog persistence APIs in `apps/mobile/src/db/schema.ts`:
+	- `getTaskCatalog(includeInactive)`
+	- `upsertTaskCatalogItem(...)`
+	- `deactivateTaskCatalogItem(taskId)`
+- Added validation + service layer in `apps/mobile/src/features/admin-task-catalog/TaskCatalogService.ts`:
+	- Required fields enforced: category, effortLevel, isActive, title, description, id
+	- Explicit field-level validation errors via Zod
+- Added internal admin tool route `apps/mobile/src/app/admin-tasks.tsx` for create/edit/deactivate workflow
+- Added unit coverage in `apps/mobile/src/features/admin-task-catalog/TaskCatalogService.test.ts`
+- Validation run:
+	- TypeScript: clean (`npx tsc --noEmit`)
+	- Tests: 28 passing in focused suites (`TaskCatalogService`, `SyncService`, `NotificationSchedulerService`, `useReminderSettings`)
 
 ## References
 

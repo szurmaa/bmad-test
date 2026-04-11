@@ -1,6 +1,6 @@
 # Story 8.2: Peer Review and Publish Workflow
 
-Status: backlog
+Status: in-progress
 
 ## Story
 
@@ -33,6 +33,21 @@ So that quality and consistency are maintained.
 - Unit tests: Workflow state transitions, audit logging
 - Integration tests: Submit draft → review → publish → mobile sees update
 - E2E tests (admin): Create task → submit for review → reviewer approves → task available on mobile
+
+## Dev Record
+
+- Added review workflow persistence in `apps/mobile/src/db/schema.ts`:
+	- `task_review_events` table (status history + reviewer metadata)
+	- `app_settings` table usage for `task_catalog_version`
+	- New APIs: `createTaskReviewEvent`, `getLatestTaskReviewEvent`, `getTaskCatalogVersion`, `setTaskCatalogVersion`
+- Added workflow state machine service in `apps/mobile/src/features/admin-review-workflow/ReviewPublishService.ts`:
+	- Allowed transitions: `draft -> in_review -> approved/rejected -> published`
+	- API: `submitTaskForReview`, `approveTaskReview`, `rejectTaskReview`, `publishApprovedTask`
+	- Publish action bumps `task_catalog_version` for client refresh detection
+- Added unit tests in `apps/mobile/src/features/admin-review-workflow/ReviewPublishService.test.ts` (6 tests)
+- Validation run:
+	- TypeScript: clean (`npx tsc --noEmit`)
+	- Tests: 12 passing (`ReviewPublishService`, `TaskCatalogService`)
 
 ## References
 

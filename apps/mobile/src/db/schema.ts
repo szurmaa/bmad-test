@@ -54,7 +54,32 @@ export interface DatabaseTables {
     synced_at: string | null;
     retry_count: number;
   };
+  'task_review_events': {
+    id: string;
+    task_id: string;
+    status: string; // draft | in_review | approved | rejected | published
+    reviewer_id: string | null;
+    reviewer_notes: string | null;
+    reviewed_at: string | null;
+    created_at: string;
+  };
+  'app_settings': {
+    setting_key: string;
+    setting_value: string;
+    updated_at: string;
+  };
 }
+
+export type TaskLibraryRecord = {
+  id: string;
+  category: 'Mind' | 'Body' | 'Life' | 'Work';
+  title: string;
+  description: string;
+  effortLevel: 'quick' | 'medium' | 'involved';
+  isActive: boolean;
+  createdAt: string;
+  lastSelectedAt: string | null;
+};
 
 let db: SQLite.SQLiteDatabase | null = null;
 
@@ -143,6 +168,29 @@ const initializeSchema = async () => {
     );
   `);
 
+  // Create task review events table
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS task_review_events (
+      id TEXT PRIMARY KEY,
+      task_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      reviewer_id TEXT,
+      reviewer_notes TEXT,
+      reviewed_at TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY(task_id) REFERENCES task_library(id)
+    );
+  `);
+
+  // Create lightweight app settings table
+  await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS app_settings (
+      setting_key TEXT PRIMARY KEY,
+      setting_value TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+  `);
+
   // Create indexes for performance
   await db.execAsync(`
     CREATE INDEX IF NOT EXISTS idx_daily_rolls_date ON daily_rolls(date);
@@ -150,6 +198,7 @@ const initializeSchema = async () => {
     CREATE INDEX IF NOT EXISTS idx_mood_logs_roll_id ON mood_logs(daily_roll_id);
     CREATE INDEX IF NOT EXISTS idx_task_library_active ON task_library(is_active);
     CREATE INDEX IF NOT EXISTS idx_sync_queue_synced ON sync_queue(synced_at);
+    CREATE INDEX IF NOT EXISTS idx_task_review_events_task_id ON task_review_events(task_id);
   `);
 };
 
@@ -258,6 +307,128 @@ export const getActiveTasks = async (): Promise<any[]> => {
     description: row.description,
     effortLevel: row.effort_level,
   }));
+};
+
+/**
+ * Get the full task catalog for admin workflows.
+ */
+export const getTaskCatalog = async (includeInactive = true): Promise<TaskLibraryRecord[]> => {
+  const database = await getDatabase();
+  const rows = await database.getAllAsync<DatabaseTables['task_library']>(
+    includeInactive
+      ? `SELECT * FROM task_library ORDER BY created_at DESC`
+      : `SELECT * FROM task_library WHERE is_active = 1 ORDER BY created_at DESC`
+  );
+
+  return (rows || []).map((row) => ({
+    id: row.id,
+    category: row.category as TaskLibraryRecord['category'],
+    title: row.title,
+    description: row.description,
+    effortLevel: row.effort_level as TaskLibraryRecord['effortLevel'],
+    isActive: Boolean(row.is_active),
+    createdAt: row.created_at,
+    lastSelectedAt: row.last_selected_at,
+  }));
+};
+
+/**
+ * Create or edit a task catalog item for internal curation.
+ */
+export const upsertTaskCatalogItem = async (task: {
+  id: string;
+  category: 'Mind' | 'Body' | 'Life' | 'Work';
+  title: string;
+  description: string;
+  effortLevel: 'quick' | 'medium' | 'involved';
+  isActive: boolean;
+}): Promise<void> => {
+  const database = await getDatabase();
+  await database.runAsync(
+    `INSERT INTO task_library (id, category, title, description, effort_level, created_at, is_active)
+     VALUES (?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       category = excluded.category,
+       title = excluded.title,
+       description = excluded.description,
+       effort_level = excluded.effort_level,
+       is_active = excluded.is_active`,
+    [
+      task.id,
+      task.category,
+      task.title,
+      task.description,
+      task.effortLevel,
+      new Date().toISOString(),
+      task.isActive ? 1 : 0,
+    ]
+  );
+};
+
+/**
+ * Deactivate a task without deleting analytics history.
+ */
+export const deactivateTaskCatalogItem = async (taskId: string): Promise<void> => {
+  const database = await getDatabase();
+  await database.runAsync(
+    `UPDATE task_library SET is_active = 0 WHERE id = ?`,
+    [taskId]
+  );
+};
+
+export const createTaskReviewEvent = async (event: {
+  id: string;
+  taskId: string;
+  status: 'draft' | 'in_review' | 'approved' | 'rejected' | 'published';
+  reviewerId?: string;
+  reviewerNotes?: string;
+}): Promise<void> => {
+  const database = await getDatabase();
+  await database.runAsync(
+    `INSERT INTO task_review_events
+     (id, task_id, status, reviewer_id, reviewer_notes, reviewed_at, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      event.id,
+      event.taskId,
+      event.status,
+      event.reviewerId ?? null,
+      event.reviewerNotes ?? null,
+      event.reviewerId ? new Date().toISOString() : null,
+      new Date().toISOString(),
+    ]
+  );
+};
+
+export const getLatestTaskReviewEvent = async (taskId: string): Promise<DatabaseTables['task_review_events'] | null> => {
+  const database = await getDatabase();
+  const row = await database.getFirstAsync<DatabaseTables['task_review_events']>(
+    `SELECT * FROM task_review_events WHERE task_id = ? ORDER BY created_at DESC LIMIT 1`,
+    [taskId]
+  );
+
+  return row ?? null;
+};
+
+export const setTaskCatalogVersion = async (version: number): Promise<void> => {
+  const database = await getDatabase();
+  await database.runAsync(
+    `INSERT INTO app_settings (setting_key, setting_value, updated_at)
+     VALUES ('task_catalog_version', ?, ?)
+     ON CONFLICT(setting_key) DO UPDATE SET
+       setting_value = excluded.setting_value,
+       updated_at = excluded.updated_at`,
+    [String(version), new Date().toISOString()]
+  );
+};
+
+export const getTaskCatalogVersion = async (): Promise<number> => {
+  const database = await getDatabase();
+  const row = await database.getFirstAsync<{ setting_value: string }>(
+    `SELECT setting_value FROM app_settings WHERE setting_key = 'task_catalog_version' LIMIT 1`
+  );
+
+  return row ? Number(row.setting_value) || 1 : 1;
 };
 
 export const getRandomActiveTask = async (excludeTaskId?: string) => {
