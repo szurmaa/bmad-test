@@ -1,6 +1,6 @@
 # Story 1.1: Set Up Initial Project from Starter Template
 
-Status: review
+Status: done
 
 ## Story
 

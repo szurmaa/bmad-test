@@ -18,6 +18,7 @@ function createRepositoryMock(): OnboardingProfileRepository {
     notificationChoice: null,
     notificationPermissionStatus: 'undetermined',
     notificationPromptedAt: null,
+    onboardingCompletedAt: null,
   };
 
   const readProfile = jest.fn(async () => initialProfile);
@@ -26,6 +27,7 @@ function createRepositoryMock(): OnboardingProfileRepository {
       notificationChoice: choice,
       notificationPermissionStatus: permissionStatus,
       notificationPromptedAt: '2026-04-10T15:30:00.000Z',
+      onboardingCompletedAt: '2026-04-10T15:30:00.000Z',
     })
   );
 

@@ -18,10 +18,12 @@ export function createOnboardingProfileRepository(): OnboardingProfileRepository
   return {
     readProfile: readLocalOnboardingProfile,
     async saveNotificationDecision(choice, permissionStatus) {
+      const completedAt = new Date().toISOString();
       const profile: LocalOnboardingProfile = {
         notificationChoice: choice,
         notificationPermissionStatus: permissionStatus,
-        notificationPromptedAt: new Date().toISOString(),
+        notificationPromptedAt: completedAt,
+        onboardingCompletedAt: completedAt,
       };
 
       await writeLocalOnboardingProfile(profile);

@@ -11,6 +11,7 @@ export type LocalOnboardingProfile = {
   notificationChoice: NotificationChoice | null;
   notificationPermissionStatus: NotificationPermissionStatus;
   notificationPromptedAt: string | null;
+  onboardingCompletedAt: string | null;
 };
 
 const STORAGE_KEY = 'habit-dice.onboarding-profile';
@@ -19,6 +20,7 @@ const defaultProfile = (): LocalOnboardingProfile => ({
   notificationChoice: null,
   notificationPermissionStatus: 'undetermined',
   notificationPromptedAt: null,
+  onboardingCompletedAt: null,
 });
 
 export async function readLocalOnboardingProfile(): Promise<LocalOnboardingProfile> {
@@ -34,6 +36,7 @@ export async function readLocalOnboardingProfile(): Promise<LocalOnboardingProfi
       notificationChoice: parsed.notificationChoice ?? null,
       notificationPermissionStatus: parsed.notificationPermissionStatus ?? 'undetermined',
       notificationPromptedAt: parsed.notificationPromptedAt ?? null,
+      onboardingCompletedAt: parsed.onboardingCompletedAt ?? null,
     };
   } catch {
     return defaultProfile();

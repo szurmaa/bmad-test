@@ -9,8 +9,8 @@ test('notification permission step is non-blocking when skipped', async ({ page 
 
   await expect(page.getByTestId('notification-step')).toBeVisible();
   await page.getByTestId('not-now-button').click();
-  await expect(page.getByTestId('app-entry-card')).toBeVisible();
-  await expect(page.getByText('Your reminder choice is saved.')).toBeVisible();
+  await expect(page.getByTestId('roll-button')).toBeVisible();
+  await expect(page.getByText('Roll for Today')).toBeVisible();
 });
 
 test('notification permission step is non-blocking when allow is chosen', async ({ page }) => {
@@ -22,6 +22,6 @@ test('notification permission step is non-blocking when allow is chosen', async 
 
   await expect(page.getByTestId('notification-step')).toBeVisible();
   await page.getByTestId('allow-button').click();
-  await expect(page.getByTestId('app-entry-card')).toBeVisible();
-  await expect(page.getByText('Your reminder choice is saved.')).toBeVisible();
+  await expect(page.getByTestId('roll-button')).toBeVisible();
+  await expect(page.getByText('Roll for Today')).toBeVisible();
 });

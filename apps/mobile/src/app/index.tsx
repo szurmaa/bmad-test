@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { NotificationPermissionGate } from '@/features/onboarding/components/NotificationPermissionGate';
+import { OnboardingFlowGate } from '@/features/onboarding/components/OnboardingFlowGate';
 
 export default function HomeScreen() {
-  return <NotificationPermissionGate />;
+  return <OnboardingFlowGate />;
 }

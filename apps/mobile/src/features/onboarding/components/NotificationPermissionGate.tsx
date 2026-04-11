@@ -30,6 +30,7 @@ import {
 type NotificationPermissionGateProps = {
   profileRepository?: OnboardingProfileRepository;
   permissionService?: NotificationPermissionService;
+  onComplete?: (profile: LocalOnboardingProfile) => void;
 };
 
 function statusCopy(status: NotificationPermissionStatus): string {
@@ -99,6 +100,7 @@ function ButtonCard({
 export function NotificationPermissionGate({
   profileRepository = createOnboardingProfileRepository(),
   permissionService = createNotificationPermissionService(),
+  onComplete,
 }: NotificationPermissionGateProps) {
   const theme = useTheme();
   const [isLoading, setIsLoading] = React.useState(true);
@@ -122,6 +124,7 @@ export function NotificationPermissionGate({
             notificationChoice: null,
             notificationPermissionStatus: 'undetermined',
             notificationPromptedAt: null,
+            onboardingCompletedAt: null,
           });
         }
       } finally {
@@ -158,19 +161,27 @@ export function NotificationPermissionGate({
 
         const nextProfile = await profileRepository.saveNotificationDecision(choice, permissionStatus);
         setProfile(nextProfile);
+        onComplete?.(nextProfile);
       } catch {
         // Keep onboarding non-blocking even if local persistence fails.
-        setProfile((currentProfile) => ({
+        const fallbackProfile: LocalOnboardingProfile = {
           notificationChoice: choice,
-          notificationPermissionStatus: currentProfile?.notificationPermissionStatus ?? 'undetermined',
-          notificationPromptedAt: currentProfile?.notificationPromptedAt ?? new Date().toISOString(),
+          notificationPermissionStatus: profile?.notificationPermissionStatus ?? 'undetermined',
+          notificationPromptedAt: profile?.notificationPromptedAt ?? new Date().toISOString(),
+          onboardingCompletedAt: new Date().toISOString(),
+        };
+        setProfile((currentProfile) => ({
+          ...fallbackProfile,
+          notificationPermissionStatus:
+            currentProfile?.notificationPermissionStatus ?? fallbackProfile.notificationPermissionStatus,
         }));
+        onComplete?.(fallbackProfile);
         setErrorMessage('We could not save that choice. We still moved you forward.');
       } finally {
         setIsSubmitting(false);
       }
     },
-    [permissionService, profileRepository]
+    [onComplete, permissionService, profileRepository]
   );
 
   if (isLoading || !profile) {
