@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format } from 'date-fns';
-import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Daily Roll State Management
@@ -55,6 +54,14 @@ const isNewDay = (lastRollDate: string | null): boolean => {
   return lastDateString !== todayString;
 };
 
+const generateRollId = (): string => {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `roll-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+};
+
 export const useDailyRollStore = create<DailyRollStore>()(
   persist(
     (set, get) => ({
@@ -77,7 +84,7 @@ export const useDailyRollStore = create<DailyRollStore>()(
           const today = format(new Date(), 'yyyy-MM-dd');
 
           const newRoll: DailyRoll = {
-            id: uuidv4(),
+            id: generateRollId(),
             date: today,
             taskId: randomTask.id,
             taskCategory: randomTask.category as 'Mind' | 'Body' | 'Life' | 'Work',

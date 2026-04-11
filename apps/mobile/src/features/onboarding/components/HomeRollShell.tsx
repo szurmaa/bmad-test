@@ -7,6 +7,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { CompletionMoment } from '@/features/daily-roll/components/CompletionMoment';
 import { DiceRoll } from '@/features/daily-roll/components/DiceRoll';
+import { DaysPlayedCounter } from '@/features/daily-roll/components/DaysPlayedCounter';
 import { RerollStateIndicator } from '@/features/daily-roll/components/RerollStateIndicator';
 import { TaskRevealCard } from '@/features/daily-roll/components/TaskRevealCard';
 import { useDailyRollInit } from '@/hooks/useDailyRollInit';
@@ -47,11 +48,9 @@ export function HomeRollShell() {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <ThemedText type="small" themeColor="textSecondary" style={styles.eyebrow}>
-              {daysPlayed} days played
-            </ThemedText>
+            <DaysPlayedCounter count={daysPlayed} />
             <ThemedText type="subtitle" style={styles.title}>
-              {currentRoll ? 'Today is already ready.' : 'Roll once and get one small thing to do.'}
+              {currentRoll ? 'Today is ready when you are.' : 'Roll once and get one small thing to do.'}
             </ThemedText>
             <ThemedText type="default" themeColor="textSecondary" style={styles.body}>
               {currentRoll
@@ -153,10 +152,6 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: Spacing.three,
-  },
-  eyebrow: {
-    textTransform: 'uppercase',
-    letterSpacing: 1,
   },
   title: {
     maxWidth: 560,

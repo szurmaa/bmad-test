@@ -35,6 +35,8 @@ describe('HomeRollShell', () => {
 
     expect(rollToday).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId('task-reveal-card')).toBeNull();
+    expect(screen.getByTestId('days-played-counter')).toBeTruthy();
+    expect(screen.getByText('Your first roll starts the count.')).toBeTruthy();
   });
 
   it('shows the revealed task and completion action after rolling', () => {
@@ -69,6 +71,7 @@ describe('HomeRollShell', () => {
 
     expect(screen.getByTestId('task-reveal-card')).toBeTruthy();
     expect(screen.getByText('Drink water')).toBeTruthy();
+    expect(screen.getByText("You've shown up 3 times.")).toBeTruthy();
 
     fireEvent.press(screen.getByTestId('complete-button'));
     expect(completeToday).toHaveBeenCalledTimes(1);
@@ -104,7 +107,8 @@ describe('HomeRollShell', () => {
 
     render(<HomeRollShell />);
 
-    expect(screen.getByText('Reroll used today')).toBeTruthy();
+    expect(screen.getAllByText('Reroll used today')).toHaveLength(2);
     expect(screen.getByText('Ready again tomorrow.')).toBeTruthy();
+    expect(screen.queryByText(/streak/i)).toBeNull();
   });
 });

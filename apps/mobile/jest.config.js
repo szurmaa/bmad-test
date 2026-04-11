@@ -1,9 +1,9 @@
-import type { Config } from 'jest';
-
-const config: Config = {
+/** @type {import('jest').Config} */
+const config = {
   preset: 'jest-expo',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
+    '^@/global.css$': '<rootDir>/test/mocks/styleMock.js',
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@/assets/(.*)$': '<rootDir>/assets/$1',
     '\\.(css)$': '<rootDir>/test/mocks/styleMock.js',
@@ -17,4 +17,4 @@ const config: Config = {
   ],
 };
 
-export default config;
+module.exports = config;

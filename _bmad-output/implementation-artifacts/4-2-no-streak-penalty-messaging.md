@@ -1,6 +1,6 @@
 # Story 4.2: No Streak-Penalty Messaging
 
-Status: backlog
+Status: in-progress
 
 ## Story
 
@@ -38,3 +38,16 @@ So that missed days do not feel punitive.
 
 **FRs Covered:** FR13, FR14
 **Epic:** Epic 4 - Days-Played Counter & Cumulative Progress
+
+## Dev Agent Record
+
+### Status
+- [x] Implementation complete
+- [ ] Tests passing
+- [ ] Code reviewed
+
+### Notes
+- Reworked progress messaging to use additive language such as `days played` and `You've shown up X times.`
+- Avoided any missed-day or broken-streak language in the current home shell experience.
+- Added test assertions to guard against streak-oriented wording in the Epic 4 UI path.
+- Automated Jest execution remains limited by existing Expo test-runtime infrastructure issues in this repo.

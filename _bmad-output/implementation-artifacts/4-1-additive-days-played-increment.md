@@ -1,6 +1,6 @@
 # Story 4.1: Additive Days-Played Increment
 
-Status: backlog
+Status: in-progress
 
 ## Story
 
@@ -38,3 +38,16 @@ So that I can see cumulative engagement over time.
 
 **FRs Covered:** FR11, FR12
 **Epic:** Epic 4 - Days-Played Counter & Cumulative Progress
+
+## Dev Agent Record
+
+### Status
+- [x] Implementation complete
+- [ ] Tests passing
+- [ ] Code reviewed
+
+### Notes
+- Added a dedicated additive days-played counter component to the home experience.
+- The count is derived from distinct daily rolls and continues across app relaunches and day gaps without resetting.
+- Added positive increment animation for count increases when reduced motion is not enabled.
+- Automated Jest execution remains limited by existing Expo test-runtime infrastructure issues in this repo.
