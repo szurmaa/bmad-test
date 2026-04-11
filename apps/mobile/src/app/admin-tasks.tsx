@@ -18,6 +18,14 @@ import {
   readCatalogTasks,
   type TaskCatalogInput,
 } from '@/features/admin-task-catalog/TaskCatalogService';
+import {
+  approveTaskReview,
+  getCurrentReviewState,
+  publishApprovedTask,
+  rejectTaskReview,
+  submitTaskForReview,
+  type ReviewStatus,
+} from '@/features/admin-review-workflow/ReviewPublishService';
 
 const defaultForm: TaskCatalogInput = {
   id: '',
@@ -32,11 +40,34 @@ export default function AdminTasksScreen() {
   const [form, setForm] = React.useState<TaskCatalogInput>(defaultForm);
   const [errors, setErrors] = React.useState<Partial<Record<keyof TaskCatalogInput, string>>>({});
   const [tasks, setTasks] = React.useState<Array<{ id: string; title: string; isActive: boolean }>>([]);
+  const [reviewStateByTask, setReviewStateByTask] = React.useState<Record<string, {
+    status: ReviewStatus;
+    reviewerId?: string;
+    reviewerNotes?: string;
+    reviewedAt?: string;
+  }>>({});
+  const [reviewerIdByTask, setReviewerIdByTask] = React.useState<Record<string, string>>({});
+  const [reviewerNotesByTask, setReviewerNotesByTask] = React.useState<Record<string, string>>({});
+  const [notice, setNotice] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
 
   const refresh = React.useCallback(async () => {
     const rows = await readCatalogTasks();
     setTasks(rows.map((row) => ({ id: row.id, title: row.title, isActive: row.isActive })));
+
+    const states: Record<string, { status: ReviewStatus; reviewerId?: string; reviewerNotes?: string; reviewedAt?: string }> = {};
+    for (const row of rows) {
+      const latest = await getCurrentReviewState(row.id);
+      if (latest) {
+        states[row.id] = {
+          status: latest.status as ReviewStatus,
+          reviewerId: latest.reviewer_id ?? undefined,
+          reviewerNotes: latest.reviewer_notes ?? undefined,
+          reviewedAt: latest.reviewed_at ?? undefined,
+        };
+      }
+    }
+    setReviewStateByTask(states);
   }, []);
 
   React.useEffect(() => {
@@ -58,6 +89,45 @@ export default function AdminTasksScreen() {
 
   const deactivate = React.useCallback(async (taskId: string) => {
     await deactivateCatalogTask(taskId);
+    setNotice('Task deactivated successfully.');
+    await refresh();
+  }, [refresh]);
+
+  const submitReview = React.useCallback(async (taskId: string) => {
+    await submitTaskForReview(taskId);
+    setNotice(`Task ${taskId} submitted for review.`);
+    await refresh();
+  }, [refresh]);
+
+  const approveReview = React.useCallback(async (taskId: string) => {
+    const reviewerId = (reviewerIdByTask[taskId] || '').trim();
+    if (!reviewerId) {
+      setNotice('Reviewer ID is required to approve.');
+      return;
+    }
+
+    await approveTaskReview(taskId, reviewerId, reviewerNotesByTask[taskId]);
+    setNotice(`Task ${taskId} approved.`);
+    await refresh();
+  }, [refresh, reviewerIdByTask, reviewerNotesByTask]);
+
+  const rejectReview = React.useCallback(async (taskId: string) => {
+    const reviewerId = (reviewerIdByTask[taskId] || '').trim();
+    const notes = (reviewerNotesByTask[taskId] || '').trim();
+
+    if (!reviewerId || !notes) {
+      setNotice('Reviewer ID and rejection notes are required to reject.');
+      return;
+    }
+
+    await rejectTaskReview(taskId, reviewerId, notes);
+    setNotice(`Task ${taskId} rejected.`);
+    await refresh();
+  }, [refresh, reviewerIdByTask, reviewerNotesByTask]);
+
+  const publishTask = React.useCallback(async (taskId: string) => {
+    const version = await publishApprovedTask(taskId);
+    setNotice(`Task ${taskId} published. Catalog version ${version}.`);
     await refresh();
   }, [refresh]);
 
@@ -69,6 +139,7 @@ export default function AdminTasksScreen() {
           <ThemedText type="small" themeColor="textSecondary">
             Internal curation tool for create, edit, and deactivate operations.
           </ThemedText>
+          {notice ? <ThemedText type="small" style={styles.noticeText}>{notice}</ThemedText> : null}
 
           <View style={styles.formGroup}>
             <Label text="Task ID" error={errors.id} />
@@ -137,12 +208,66 @@ export default function AdminTasksScreen() {
                   <ThemedText type="small" themeColor="textSecondary">
                     {task.id} · {task.isActive ? 'active' : 'inactive'}
                   </ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    Review status: {reviewStateByTask[task.id]?.status ?? 'draft'}
+                  </ThemedText>
+                  {reviewStateByTask[task.id]?.reviewerId ? (
+                    <ThemedText type="small" themeColor="textSecondary">
+                      Last reviewer: {reviewStateByTask[task.id]?.reviewerId}
+                    </ThemedText>
+                  ) : null}
+                  {reviewStateByTask[task.id]?.reviewedAt ? (
+                    <ThemedText type="small" themeColor="textSecondary">
+                      Reviewed at: {reviewStateByTask[task.id]?.reviewedAt}
+                    </ThemedText>
+                  ) : null}
                 </View>
-                {task.isActive && (
-                  <Pressable style={styles.secondaryButton} onPress={() => deactivate(task.id).catch(() => {})}>
-                    <ThemedText type="smallBold">Deactivate</ThemedText>
-                  </Pressable>
-                )}
+
+                <View style={styles.actionsCol}>
+                  {task.isActive && (
+                    <Pressable style={styles.secondaryButton} onPress={() => deactivate(task.id).catch(() => {})}>
+                      <ThemedText type="smallBold">Deactivate</ThemedText>
+                    </Pressable>
+                  )}
+
+                  {(reviewStateByTask[task.id]?.status ?? 'draft') === 'draft' || (reviewStateByTask[task.id]?.status ?? 'draft') === 'rejected' ? (
+                    <Pressable style={styles.primaryMiniButton} onPress={() => submitReview(task.id).catch(() => {})}>
+                      <ThemedText type="smallBold" style={styles.primaryButtonText}>Submit review</ThemedText>
+                    </Pressable>
+                  ) : null}
+
+                  {(reviewStateByTask[task.id]?.status ?? 'draft') === 'in_review' ? (
+                    <View style={styles.reviewBox}>
+                      <TextInput
+                        value={reviewerIdByTask[task.id] ?? ''}
+                        onChangeText={(value) => setReviewerIdByTask((prev) => ({ ...prev, [task.id]: value }))}
+                        style={styles.input}
+                        placeholder="reviewer_id"
+                      />
+                      <TextInput
+                        value={reviewerNotesByTask[task.id] ?? ''}
+                        onChangeText={(value) => setReviewerNotesByTask((prev) => ({ ...prev, [task.id]: value }))}
+                        style={[styles.input, styles.textAreaSmall]}
+                        placeholder="review notes"
+                        multiline
+                      />
+                      <View style={styles.reviewButtonsRow}>
+                        <Pressable style={styles.approveButton} onPress={() => approveReview(task.id).catch(() => {})}>
+                          <ThemedText type="smallBold" style={styles.primaryButtonText}>Approve</ThemedText>
+                        </Pressable>
+                        <Pressable style={styles.rejectButton} onPress={() => rejectReview(task.id).catch(() => {})}>
+                          <ThemedText type="smallBold">Reject</ThemedText>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ) : null}
+
+                  {(reviewStateByTask[task.id]?.status ?? 'draft') === 'approved' ? (
+                    <Pressable style={styles.publishButton} onPress={() => publishTask(task.id).catch(() => {})}>
+                      <ThemedText type="smallBold" style={styles.primaryButtonText}>Publish</ThemedText>
+                    </Pressable>
+                  ) : null}
+                </View>
               </View>
             ))}
           </View>
@@ -201,6 +326,7 @@ const styles = StyleSheet.create({
   },
   labelRow: { gap: Spacing.one },
   errorText: { color: '#B42318' },
+  noticeText: { color: '#067647' },
   input: {
     borderWidth: 1,
     borderColor: '#D0D5DD',
@@ -250,6 +376,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   listRowText: { flex: 1, gap: Spacing.one },
+  actionsCol: { width: 170, gap: Spacing.one },
   secondaryButton: {
     borderWidth: 1,
     borderColor: '#F04438',
@@ -257,5 +384,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     backgroundColor: '#FFF5F5',
+  },
+  primaryMiniButton: {
+    borderRadius: 8,
+    backgroundColor: '#175CD3',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  reviewBox: { gap: Spacing.one },
+  textAreaSmall: { minHeight: 64, textAlignVertical: 'top' },
+  reviewButtonsRow: { flexDirection: 'row', gap: Spacing.one },
+  approveButton: {
+    flex: 1,
+    borderRadius: 8,
+    backgroundColor: '#175CD3',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  rejectButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#F04438',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    alignItems: 'center',
+    backgroundColor: '#FFF5F5',
+  },
+  publishButton: {
+    borderRadius: 8,
+    backgroundColor: '#1570EF',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    alignItems: 'center',
   },
 });

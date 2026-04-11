@@ -8,6 +8,7 @@ import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import AppTabs from '@/components/app-tabs';
 import { parseReminderDeepLink } from '@/features/notifications/services/NotificationSchedulerService';
 import { processQueue } from '@/features/sync/SyncService';
+import { refreshTaskCatalogIfNeeded } from '@/features/task-catalog-refresh/TaskCatalogRefreshService';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -37,11 +38,13 @@ export default function TabLayout() {
     const appStateSubscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') {
         processQueue().catch(() => {});
+        refreshTaskCatalogIfNeeded().catch(() => {});
       }
     });
 
     // Also attempt sync on initial mount
     processQueue().catch(() => {});
+    refreshTaskCatalogIfNeeded().catch(() => {});
 
     return () => {
       subscription.remove();

@@ -76,10 +76,10 @@ development_status:
   epic-7-retrospective: done
 
   # Epic 8 (next sprint)
-  epic-8: in-progress
+  epic-8: done
   8-1-admin-crud-for-task-catalog: done
-  8-2-peer-review-and-publish-workflow: in-progress
-  epic-8-retrospective: optional
+  8-2-peer-review-and-publish-workflow: done
+  epic-8-retrospective: done
 
   # Epic 9
   epic-9: backlog

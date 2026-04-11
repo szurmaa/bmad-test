@@ -1,6 +1,6 @@
 # Story 8.2: Peer Review and Publish Workflow
 
-Status: in-progress
+Status: done
 
 ## Story
 
@@ -48,6 +48,22 @@ So that quality and consistency are maintained.
 - Validation run:
 	- TypeScript: clean (`npx tsc --noEmit`)
 	- Tests: 12 passing (`ReviewPublishService`, `TaskCatalogService`)
+- Added mobile task-catalog hot refresh service in `apps/mobile/src/features/task-catalog-refresh/TaskCatalogRefreshService.ts`:
+	- Reads remote `app_meta/task_catalog` version from Firestore
+	- Imports remote `tasks` collection into local catalog via `upsertTaskCatalogItem`
+	- Updates local version with `setTaskCatalogVersion`
+- Wired refresh execution in `apps/mobile/src/app/_layout.tsx`:
+	- Runs on app mount and app foreground (`AppState` active)
+	- Enables propagation without app restart
+- Expanded admin peer review UI in `apps/mobile/src/app/admin-tasks.tsx`:
+	- Submit for review (draft/rejected)
+	- Approve / reject (in_review) with reviewer ID and notes
+	- Publish (approved) with catalog version bump notice
+	- Displays current review status + latest reviewer metadata
+- Added unit tests `apps/mobile/src/features/task-catalog-refresh/TaskCatalogRefreshService.test.ts` (2 tests)
+- Validation run update:
+	- TypeScript: clean (`npx tsc --noEmit`)
+	- Tests: 14 passing (`TaskCatalogRefreshService`, `ReviewPublishService`, `TaskCatalogService`)
 
 ## References
 
