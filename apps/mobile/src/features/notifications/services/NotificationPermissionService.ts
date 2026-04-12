@@ -1,7 +1,14 @@
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 import type { NotificationPermissionStatus } from '@/db/local-profile-storage';
+import {
+  safeGetPermissionsAsync,
+  safeRequestPermissionAsync,
+  safeSetNotificationChannelAsync,
+  getIosAuthorizationStatus,
+  getPermissionStatus,
+  getAndroidImportance,
+} from '@/features/notifications/services/SafeNotificationsService';
 
 export type NotificationPermissionService = {
   getCurrentStatus: () => Promise<NotificationPermissionStatus>;
@@ -22,28 +29,30 @@ export function mapNativePermissionStatus(
   settings: NativePermissionSettings
 ): NotificationPermissionStatus {
   if (Platform.OS === 'ios') {
+    const IosAuthorizationStatus = getIosAuthorizationStatus();
     const iosStatus = settings.ios?.status;
 
     if (
-      iosStatus === Notifications.IosAuthorizationStatus.AUTHORIZED ||
-      iosStatus === Notifications.IosAuthorizationStatus.PROVISIONAL ||
+      iosStatus === IosAuthorizationStatus.AUTHORIZED ||
+      iosStatus === IosAuthorizationStatus.PROVISIONAL ||
       settings.granted
     ) {
       return 'granted';
     }
 
-    if (iosStatus === Notifications.IosAuthorizationStatus.DENIED) {
+    if (iosStatus === IosAuthorizationStatus.DENIED) {
       return 'denied';
     }
 
     return 'undetermined';
   }
 
-  if (settings.granted || settings.status === Notifications.PermissionStatus.GRANTED) {
+  const PermissionStatus = getPermissionStatus();
+  if (settings.granted || settings.status === PermissionStatus.GRANTED) {
     return 'granted';
   }
 
-  if (settings.status === Notifications.PermissionStatus.DENIED) {
+  if (settings.status === PermissionStatus.DENIED) {
     return 'denied';
   }
 
@@ -55,9 +64,10 @@ async function ensureAndroidNotificationChannelAsync(): Promise<void> {
     return;
   }
 
-  await Notifications.setNotificationChannelAsync(DEFAULT_CHANNEL_ID, {
+  const AndroidImportance = getAndroidImportance();
+  await safeSetNotificationChannelAsync(DEFAULT_CHANNEL_ID, {
     name: 'Daily reminders',
-    importance: Notifications.AndroidImportance.DEFAULT,
+    importance: AndroidImportance.DEFAULT,
   });
 }
 
@@ -102,7 +112,7 @@ export function createNotificationPermissionService(): NotificationPermissionSer
         return getWebPermissionStatus();
       }
 
-      const settings = await Notifications.getPermissionsAsync();
+      const settings = await safeGetPermissionsAsync();
       return mapNativePermissionStatus(settings);
     },
     async requestPermission() {
@@ -111,7 +121,7 @@ export function createNotificationPermissionService(): NotificationPermissionSer
       }
 
       await ensureAndroidNotificationChannelAsync();
-      const settings = await Notifications.requestPermissionsAsync({
+      const settings = await safeRequestPermissionAsync({
         ios: {
           allowAlert: true,
           allowBadge: true,

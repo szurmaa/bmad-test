@@ -1,3 +1,13 @@
+const fs = require('fs');
+const path = require('path');
+
+const root = __dirname;
+const topLevelExpoModulesCorePath = path.join(root, 'node_modules/expo-modules-core/index.js');
+const nestedExpoModulesCorePath = path.join(root, 'node_modules/expo/node_modules/expo-modules-core/index.js');
+const expoModulesCorePath = fs.existsSync(topLevelExpoModulesCorePath)
+  ? topLevelExpoModulesCorePath
+  : nestedExpoModulesCorePath;
+
 /** @type {import('jest').Config} */
 const config = {
   preset: 'jest-expo',
@@ -7,7 +17,7 @@ const config = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@/assets/(.*)$': '<rootDir>/assets/$1',
     '\\.(css)$': '<rootDir>/test/mocks/styleMock.js',
-    '^expo-modules-core$': '<rootDir>/node_modules/expo-modules-core/index.js',
+    '^expo-modules-core$': expoModulesCorePath,
     '^expo-modules-core/src/polyfill/dangerous-internal$':
       '<rootDir>/test/mocks/expo-modules-core-dangerous-internal.js',
     '^expo-sqlite/localStorage/install$': '<rootDir>/__mocks__/expo-sqlite/localStorage/install.js',

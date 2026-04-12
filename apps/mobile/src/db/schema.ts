@@ -273,9 +273,9 @@ export const rerollDailyTask = async (rollId: string, task: {
   const database = await getDatabase();
   await database.runAsync(
     `UPDATE daily_rolls
-     SET task_id = ?, task_category = ?, task_title = ?, task_description = ?, reroll_used = 1, completed = 0, completed_at = NULL
+     SET task_id = ?, task_category = ?, task_title = ?, task_description = ?, reroll_used = 1, completed = 0, completed_at = ?
      WHERE id = ?`,
-    [task.id, task.category, task.title, task.description, rollId]
+    [task.id, task.category, task.title, task.description, null, rollId]
   );
 };
 

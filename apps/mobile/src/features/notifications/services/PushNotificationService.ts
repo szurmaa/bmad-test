@@ -1,5 +1,4 @@
 import Constants from 'expo-constants';
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { z } from 'zod';
 
@@ -9,6 +8,7 @@ import {
   createNotificationPermissionService,
   type NotificationPermissionService,
 } from '@/features/notifications/services/NotificationPermissionService';
+import { safeGetExpoPushTokenAsync } from '@/features/notifications/services/SafeNotificationsService';
 
 const PUSH_REGISTRATION_ID_KEY = 'habit-dice.push-registration-id';
 const LAST_PUSH_TOKEN_KEY = 'habit-dice.push-token';
@@ -84,7 +84,7 @@ export async function registerDevicePushToken(
     return permissionStatus;
   }
 
-  const tokenResponse = await Notifications.getExpoPushTokenAsync({
+  const tokenResponse = await safeGetExpoPushTokenAsync({
     projectId: getProjectId(),
   });
 

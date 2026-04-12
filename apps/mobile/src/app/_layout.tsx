@@ -1,6 +1,5 @@
 import { Slot, useRouter } from 'expo-router';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import * as Notifications from 'expo-notifications';
 import React from 'react';
 import { AppState, useColorScheme } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
@@ -13,6 +12,10 @@ import {
   installGlobalCrashHandler,
   startCrashReportingSession,
 } from '@/features/crash-reporting/CrashReportingService';
+import {
+  safeAddNotificationResponseReceivedListener,
+  safeGetLastNotificationResponseAsync,
+} from '@/features/notifications/services/SafeNotificationsService';
 import { registerDevicePushToken } from '@/features/notifications/services/PushNotificationService';
 import { parseReminderDeepLink } from '@/features/notifications/services/NotificationSchedulerService';
 import { processQueue } from '@/features/sync/SyncService';
@@ -35,12 +38,16 @@ export default function TabLayout() {
   };
 
   React.useEffect(() => {
+    let isMounted = true; // Prevent state updates on unmounted component
+
+    // Initialize crash reporting and app state
     installGlobalCrashHandler();
     startCrashReportingSession().catch(() => {});
     addCrashBreadcrumb('app_layout_mounted');
 
     // Handle notification tap while app is already open
-    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+    const subscription = safeAddNotificationResponseReceivedListener((response) => {
+      if (!isMounted) return;
       const url = response.notification.request.content.data?.url as string | undefined;
       const target = parseReminderDeepLink(url);
       if (target === 'roll' || target === '') {
@@ -49,18 +56,22 @@ export default function TabLayout() {
     });
 
     // Handle notification tap that launched the app (cold start)
-    Notifications.getLastNotificationResponseAsync().then((response) => {
-      if (!response) return;
+    // Use a deferred async operation to avoid state updates during render
+    let deferred: () => Promise<void> | undefined;
+    deferred = async () => {
+      const response = await safeGetLastNotificationResponseAsync();
+      if (!isMounted || !response) return;
       const url = response.notification.request.content.data?.url as string | undefined;
       const target = parseReminderDeepLink(url);
-      if (target === 'roll' || target === '') {
+      if (isMounted && (target === 'roll' || target === '')) {
         router.push('/');
       }
-    });
+    };
+    deferred().catch(() => {});
 
     // Trigger background sync whenever the app comes to the foreground
     const appStateSubscription = AppState.addEventListener('change', (nextState) => {
-      if (nextState === 'active') {
+      if (nextState === 'active' && isMounted) {
         addCrashBreadcrumb('app_foregrounded');
         processQueue().catch(() => {});
         refreshTaskCatalogIfNeeded().catch(() => {});
@@ -68,6 +79,7 @@ export default function TabLayout() {
     });
 
     const netInfoSubscription = NetInfo.addEventListener((state) => {
+      if (!isMounted) return;
       const connected = state.isConnected ?? false;
       const reachable = state.isInternetReachable ?? connected;
 
@@ -84,6 +96,7 @@ export default function TabLayout() {
     refreshTaskCatalogIfNeeded().catch(() => {});
 
     return () => {
+      isMounted = false; // Prevent callbacks after unmount
       subscription.remove();
       appStateSubscription.remove();
       netInfoSubscription();

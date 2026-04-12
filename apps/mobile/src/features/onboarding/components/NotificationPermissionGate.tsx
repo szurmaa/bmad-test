@@ -31,7 +31,10 @@ type NotificationPermissionGateProps = {
   profileRepository?: OnboardingProfileRepository;
   permissionService?: NotificationPermissionService;
   onComplete?: (profile: LocalOnboardingProfile) => void;
+  profileLoadTimeoutMs?: number;
 };
+
+const PROFILE_LOAD_TIMEOUT_MS = 4000;
 
 function statusCopy(status: NotificationPermissionStatus): string {
   switch (status) {
@@ -101,6 +104,7 @@ export function NotificationPermissionGate({
   profileRepository = createOnboardingProfileRepository(),
   permissionService = createNotificationPermissionService(),
   onComplete,
+  profileLoadTimeoutMs = PROFILE_LOAD_TIMEOUT_MS,
 }: NotificationPermissionGateProps) {
   const theme = useTheme();
   const [isLoading, setIsLoading] = React.useState(true);
@@ -112,8 +116,21 @@ export function NotificationPermissionGate({
     let isMounted = true;
 
     async function loadProfile() {
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
       try {
-        const nextProfile = await profileRepository.readProfile();
+        const timeoutFallback = new Promise<LocalOnboardingProfile>((resolve) => {
+          timeoutId = setTimeout(() => {
+            resolve({
+              notificationChoice: null,
+              notificationPermissionStatus: 'undetermined',
+              notificationPromptedAt: null,
+              onboardingCompletedAt: null,
+            });
+          }, profileLoadTimeoutMs);
+        });
+
+        const nextProfile = await Promise.race([profileRepository.readProfile(), timeoutFallback]);
         if (isMounted) {
           setProfile(nextProfile);
         }
@@ -128,6 +145,10 @@ export function NotificationPermissionGate({
           });
         }
       } finally {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+
         if (isMounted) {
           setIsLoading(false);
         }
@@ -139,7 +160,7 @@ export function NotificationPermissionGate({
     return () => {
       isMounted = false;
     };
-  }, [profileRepository]);
+  }, [profileLoadTimeoutMs, profileRepository]);
 
   const saveChoice = React.useCallback(
     async (choice: NotificationChoice) => {

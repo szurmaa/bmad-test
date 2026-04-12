@@ -9,6 +9,7 @@ import {
   getTodayRoll,
   logMood as dbLogMood,
   markRollComplete,
+  markRerollUsed,
   queueForSync,
   rerollDailyTask,
   seedTaskLibrary,
@@ -180,20 +181,29 @@ export const useDailyRollInit = () => {
     }
 
     try {
+      // Mark roll as completed in database
       await markRollComplete(currentRoll.id);
+      
+      // Also mark reroll as used when task is completed (prevents further rerolls)
+      await markRerollUsed(currentRoll.id);
+      
+      // Update in-memory state
       completeRoll();
 
+      // Queue for sync
       queueForSync('roll_completed', {
         rollId: currentRoll.id,
         date: currentRoll.date,
         completedAt: new Date().toISOString(),
       }).catch(() => {});
 
+      // Track analytics
       trackProductEvent('daily_roll_completed', 'complete_today', {
         rollId: currentRoll.id,
         daysPlayed,
         taskId: currentRoll.taskId,
       }).catch(() => {});
+      
       addCrashBreadcrumb('daily_roll_completed', {
         rollId: currentRoll.id,
         daysPlayed,
@@ -202,6 +212,7 @@ export const useDailyRollInit = () => {
       const errorMessage = err instanceof Error ? err.message : 'Unable to save completion';
       setError(errorMessage);
       setStoreError(errorMessage);
+      console.error('[completeToday] Error:', err);
     }
   };
 
@@ -221,6 +232,7 @@ export const useDailyRollInit = () => {
         throw new Error('No alternate task is available right now');
       }
 
+      // Update database with new task and mark reroll as used
       await rerollDailyTask(currentRoll.id, {
         id: nextTask.id,
         category: nextTask.category,
@@ -228,6 +240,15 @@ export const useDailyRollInit = () => {
         description: nextTask.description,
       });
 
+      // Update in-memory state
+      rerollToday({
+        id: nextTask.id,
+        category: nextTask.category,
+        title: nextTask.title,
+        description: nextTask.description,
+      });
+
+      // Queue for sync
       queueForSync('roll_rerolled', {
         rollId: currentRoll.id,
         date: currentRoll.date,
@@ -237,27 +258,23 @@ export const useDailyRollInit = () => {
         rerolledAt: new Date().toISOString(),
       }).catch(() => {});
 
+      // Track analytics
       trackProductEvent('reroll_used', 'reroll_today', {
         rollId: currentRoll.id,
         previousTaskId: currentRoll.taskId,
         newTaskId: nextTask.id,
         daysPlayed,
       }).catch(() => {});
+      
       addCrashBreadcrumb('reroll_used', {
         rollId: currentRoll.id,
         nextTaskId: nextTask.id,
-      });
-
-      rerollToday({
-        id: nextTask.id,
-        category: nextTask.category,
-        title: nextTask.title,
-        description: nextTask.description,
       });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Reroll failed';
       setError(errorMessage);
       setStoreError(errorMessage);
+      console.error('[rerollCurrentTask] Error:', err);
     } finally {
       setIsRerolling(false);
     }

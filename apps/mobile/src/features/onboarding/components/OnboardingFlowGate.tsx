@@ -21,7 +21,10 @@ import {
 type OnboardingFlowGateProps = {
   profileRepository?: OnboardingProfileRepository;
   permissionService?: NotificationPermissionService;
+  profileLoadTimeoutMs?: number;
 };
+
+const PROFILE_LOAD_TIMEOUT_MS = 4000;
 
 const emptyProfile: LocalOnboardingProfile = {
   notificationChoice: null,
@@ -33,6 +36,7 @@ const emptyProfile: LocalOnboardingProfile = {
 export function OnboardingFlowGate({
   profileRepository = createOnboardingProfileRepository(),
   permissionService = createNotificationPermissionService(),
+  profileLoadTimeoutMs = PROFILE_LOAD_TIMEOUT_MS,
 }: OnboardingFlowGateProps) {
   const theme = useTheme();
   const [isLoading, setIsLoading] = React.useState(true);
@@ -42,8 +46,16 @@ export function OnboardingFlowGate({
     let isMounted = true;
 
     async function loadProfile() {
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
       try {
-        const nextProfile = await profileRepository.readProfile();
+        const timeoutFallback = new Promise<LocalOnboardingProfile>((resolve) => {
+          timeoutId = setTimeout(() => {
+            resolve(emptyProfile);
+          }, profileLoadTimeoutMs);
+        });
+
+        const nextProfile = await Promise.race([profileRepository.readProfile(), timeoutFallback]);
+
         if (isMounted) {
           setProfile(nextProfile);
         }
@@ -52,6 +64,10 @@ export function OnboardingFlowGate({
           setProfile(emptyProfile);
         }
       } finally {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+
         if (isMounted) {
           setIsLoading(false);
         }
@@ -63,7 +79,7 @@ export function OnboardingFlowGate({
     return () => {
       isMounted = false;
     };
-  }, [profileRepository]);
+  }, [profileLoadTimeoutMs, profileRepository]);
 
   if (isLoading) {
     return (
@@ -88,6 +104,7 @@ export function OnboardingFlowGate({
     <NotificationPermissionGate
       profileRepository={profileRepository}
       permissionService={permissionService}
+      profileLoadTimeoutMs={profileLoadTimeoutMs}
       onComplete={(nextProfile) => {
         setProfile(nextProfile);
       }}

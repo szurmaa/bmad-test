@@ -1,4 +1,8 @@
-import * as Notifications from 'expo-notifications';
+import {
+  safeScheduleNotificationAsync,
+  safeCancelScheduledNotificationAsync,
+  getSchedulableTriggerInputTypes,
+} from '@/features/notifications/services/SafeNotificationsService';
 
 const REMINDER_NOTIFICATION_ID_KEY = 'habit-dice.reminder-notification-id';
 const CHANNEL_ID = 'daily-reminders';
@@ -30,23 +34,24 @@ export async function scheduleReminderNotification(
 
   const day = new Date().getDay();
   const weekday = day === 0 ? 1 : day + 1;
+  const SchedulableTriggerInputTypes = getSchedulableTriggerInputTypes();
   const trigger =
     reminderType === 'weekly'
       ? {
-          type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+          type: SchedulableTriggerInputTypes.WEEKLY,
           weekday,
           hour: time.hour,
           minute: time.minute,
           channelId: CHANNEL_ID,
         }
       : {
-          type: Notifications.SchedulableTriggerInputTypes.DAILY,
+          type: SchedulableTriggerInputTypes.DAILY,
           hour: time.hour,
           minute: time.minute,
           channelId: CHANNEL_ID,
         };
 
-  const notificationId = await Notifications.scheduleNotificationAsync({
+  const notificationId = await safeScheduleNotificationAsync({
     content: {
       title: 'Your daily roll is waiting 🎲',
       body: 'Tap to roll your micro-habit for today.',
@@ -68,7 +73,7 @@ export async function cancelReminderNotification(): Promise<void> {
   const existingId = await _loadNotificationId();
 
   if (existingId) {
-    await Notifications.cancelScheduledNotificationAsync(existingId);
+    await safeCancelScheduledNotificationAsync(existingId);
     await _clearNotificationId();
   }
 }
