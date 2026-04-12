@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -37,6 +38,7 @@ const defaultForm: TaskCatalogInput = {
 };
 
 export default function AdminTasksScreen() {
+  const router = useRouter();
   const [form, setForm] = React.useState<TaskCatalogInput>(defaultForm);
   const [errors, setErrors] = React.useState<Partial<Record<keyof TaskCatalogInput, string>>>({});
   const [tasks, setTasks] = React.useState<Array<{ id: string; title: string; isActive: boolean }>>([]);
@@ -135,10 +137,21 @@ export default function AdminTasksScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content}>
         <ThemedView style={styles.container}>
-          <ThemedText type="subtitle">Admin Task Catalog</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            Internal curation tool for create, edit, and deactivate operations.
-          </ThemedText>
+          <View style={styles.header}>
+            <View>
+              <ThemedText type="subtitle">Admin Task Catalog</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                Internal curation tool for create, edit, and deactivate operations.
+              </ThemedText>
+            </View>
+            <Pressable
+              onPress={() => router.push('/dev-debug')}
+              style={({ pressed }) => [styles.devLink, { opacity: pressed ? 0.6 : 1 }]}>
+              <ThemedText type="small" style={styles.devLinkText}>
+                🔧 Dev Debug
+              </ThemedText>
+            </Pressable>
+          </View>
           {notice ? <ThemedText type="small" style={styles.noticeText}>{notice}</ThemedText> : null}
 
           <View style={styles.formGroup}>
@@ -317,6 +330,20 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
     gap: Spacing.three,
     paddingBottom: Spacing.five,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: Spacing.two,
+  },
+  devLink: {
+    paddingVertical: Spacing.one,
+    paddingHorizontal: Spacing.two,
+  },
+  devLinkText: {
+    color: '#666',
+    fontWeight: '500',
   },
   formGroup: {
     gap: Spacing.two,

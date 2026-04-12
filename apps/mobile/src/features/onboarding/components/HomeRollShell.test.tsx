@@ -190,6 +190,40 @@ describe('HomeRollShell', () => {
     jest.useRealTimers();
   });
 
+  it('does not replay completion moment on initial load with a completed roll', () => {
+    mockUseDailyRollInit.mockReturnValue({
+      completeToday: jest.fn(),
+      currentRoll: {
+        id: 'roll-1',
+        date: '2026-04-11',
+        taskId: 'task_body_001',
+        taskCategory: 'Body',
+        taskTitle: 'Drink water',
+        taskDescription: 'Drink one full glass of water',
+        completed: true,
+        rerollUsed: false,
+        moodLogged: false,
+        createdAt: '2026-04-11T10:00:00.000Z',
+        syncedToFirebase: false,
+      },
+      daysPlayed: 3,
+      error: null,
+      isInitializing: false,
+      isRerolling: false,
+      isRolling: false,
+      isSavingMood: false,
+      logMoodToday: jest.fn(),
+      rerollCurrentTask: jest.fn(),
+      rollToday: jest.fn(),
+      skipMoodToday: jest.fn(),
+    });
+
+    render(<HomeRollShell />);
+
+    expect(screen.queryByTestId('completion-moment')).toBeNull();
+    expect(screen.getByTestId('mood-prompt')).toBeTruthy();
+  });
+
   it('does not show mood prompt when mood already logged', () => {
     jest.useFakeTimers();
     mockUseDailyRollInit.mockReturnValue({

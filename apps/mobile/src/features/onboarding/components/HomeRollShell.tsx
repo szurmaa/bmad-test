@@ -38,12 +38,26 @@ export function HomeRollShell() {
   const { bannerCampaign, dismissBannerCampaign, trackBannerClick, showOfflineCampaignPlaceholder } =
     useInAppCampaigns();
   const [showCompletionMoment, setShowCompletionMoment] = React.useState(false);
+  const hasObservedInitialCompletionState = React.useRef(false);
+  const previousCompletedRef = React.useRef(Boolean(currentRoll?.completed));
   const showMoodPrompt = Boolean(
     currentRoll?.completed && !currentRoll?.moodLogged && !showCompletionMoment
   );
 
   React.useEffect(() => {
-    if (!currentRoll?.completed) {
+    const isCompleted = Boolean(currentRoll?.completed);
+
+    // Ignore the initial hydrated state so reopening on a completed day does not replay the toast.
+    if (!hasObservedInitialCompletionState.current) {
+      hasObservedInitialCompletionState.current = true;
+      previousCompletedRef.current = isCompleted;
+      return;
+    }
+
+    const becameCompleted = !previousCompletedRef.current && isCompleted;
+    previousCompletedRef.current = isCompleted;
+
+    if (!becameCompleted) {
       return;
     }
 
