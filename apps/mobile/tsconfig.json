@@ -20,5 +20,10 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ],
+  "exclude": [
+    "e2e/**",
+    "wdio.config.ts",
+    "node_modules"
+  ],
   "extends": "expo/tsconfig.base"
 }

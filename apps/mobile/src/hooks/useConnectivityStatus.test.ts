@@ -32,7 +32,7 @@ beforeEach(() => {
 
 describe('useConnectivityStatus', () => {
   it('starts online when network is connected', async () => {
-    mockedNetInfo.fetch.mockResolvedValueOnce({ isConnected: true, isInternetReachable: true });
+    mockedNetInfo.fetch.mockResolvedValueOnce({ isConnected: true, isInternetReachable: true, type: 'wifi', details: null } as any);
 
     const { result } = renderHook(() => useConnectivityStatus());
     await act(async () => {});
@@ -42,13 +42,13 @@ describe('useConnectivityStatus', () => {
   });
 
   it('updates to offline when connectivity listener reports no internet', async () => {
-    mockedNetInfo.fetch.mockResolvedValueOnce({ isConnected: true, isInternetReachable: true });
+    mockedNetInfo.fetch.mockResolvedValueOnce({ isConnected: true, isInternetReachable: true, type: 'wifi', details: null } as any);
 
     const { result } = renderHook(() => useConnectivityStatus());
     await act(async () => {});
 
     act(() => {
-      subscriber?.({ isConnected: false, isInternetReachable: false });
+      subscriber?.({ isConnected: false, isInternetReachable: false, type: 'none', details: null } as any);
     });
 
     expect(result.current.isOffline).toBe(true);

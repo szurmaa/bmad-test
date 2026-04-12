@@ -34,14 +34,15 @@ export async function exportUserDataToJsonFile(): Promise<{ fileUri: string; fil
   };
 
   const fileName = `habit-dice-export-${Date.now()}.json`;
-  const baseDirectory = FileSystem.documentDirectory ?? FileSystem.cacheDirectory;
+  const fs = FileSystem as any;
+  const baseDirectory = (fs.documentDirectory ?? fs.cacheDirectory) as string | null;
   if (!baseDirectory) {
     throw new Error('No writable directory available for data export');
   }
 
   const fileUri = `${baseDirectory}${fileName}`;
-  await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(payload, null, 2), {
-    encoding: FileSystem.EncodingType.UTF8,
+  await (FileSystem as any).writeAsStringAsync(fileUri, JSON.stringify(payload, null, 2), {
+    encoding: 'utf8',
   });
 
   return {

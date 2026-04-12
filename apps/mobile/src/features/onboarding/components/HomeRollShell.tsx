@@ -106,7 +106,7 @@ export function HomeRollShell() {
                   { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
                 ]}
                 testID="campaign-banner">
-                <ThemedText type="defaultSemiBold">{bannerCampaign.variant.headline}</ThemedText>
+                <ThemedText type="default" style={{ fontWeight: '600' }}>{bannerCampaign.variant.headline}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
                   {bannerCampaign.variant.body}
                 </ThemedText>

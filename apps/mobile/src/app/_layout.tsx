@@ -57,7 +57,7 @@ export default function TabLayout() {
 
     // Handle notification tap that launched the app (cold start)
     // Use a deferred async operation to avoid state updates during render
-    let deferred: () => Promise<void> | undefined;
+    let deferred: (() => Promise<void>) | undefined;
     deferred = async () => {
       const response = await safeGetLastNotificationResponseAsync();
       if (!isMounted || !response) return;

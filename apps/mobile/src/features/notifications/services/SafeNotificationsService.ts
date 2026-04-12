@@ -96,11 +96,11 @@ export async function safeGetPermissionsAsync(): Promise<any> {
  * Request notification permission
  * Safe fallback: returns 'unsupported' status if notifications unavailable
  */
-export async function safeRequestPermissionAsync(): Promise<any> {
+export async function safeRequestPermissionAsync(options?: any): Promise<any> {
   if (!isNotificationsAvailable || !Notifications) {
     return { status: 'unsupported', ios: null };
   }
-  return Notifications.requestPermissionsAsync();
+  return Notifications.requestPermissionsAsync(options);
 }
 
 /**
