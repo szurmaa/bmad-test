@@ -260,7 +260,7 @@ export function NotificationPermissionGate({
               ) : null}
 
               {errorMessage ? (
-                <ThemedText type="small" style={styles.errorText}>
+                <ThemedText type="small" themeColor="error">
                   {errorMessage}
                 </ThemedText>
               ) : null}
@@ -360,9 +360,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
-  },
-  errorText: {
-    color: '#8B3A3A',
   },
   summaryBox: {
     borderRadius: Spacing.three,

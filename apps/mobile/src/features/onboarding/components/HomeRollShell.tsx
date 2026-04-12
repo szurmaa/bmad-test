@@ -77,7 +77,12 @@ export function HomeRollShell() {
         <View style={styles.content}>
           <View style={styles.header}>
             {isOffline ? (
-              <View style={[styles.offlineBanner, { backgroundColor: theme.backgroundElement }]} testID="offline-banner">
+              <View
+                style={[
+                  styles.offlineBanner,
+                  { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+                ]}
+                testID="offline-banner">
                 <ThemedText type="small" themeColor="textSecondary">
                   Offline mode: your roll progress saves locally and syncs when you reconnect.
                 </ThemedText>
@@ -96,7 +101,10 @@ export function HomeRollShell() {
 
             {bannerCampaign ? (
               <View
-                style={[styles.campaignBanner, { backgroundColor: theme.backgroundElement }]}
+                style={[
+                  styles.campaignBanner,
+                  { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+                ]}
                 testID="campaign-banner">
                 <ThemedText type="defaultSemiBold">{bannerCampaign.variant.headline}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
@@ -122,10 +130,10 @@ export function HomeRollShell() {
                     }}
                     style={({ pressed }) => [
                       styles.campaignCtaButton,
-                      { backgroundColor: theme.text, opacity: pressed ? 0.9 : 1 },
+                      { backgroundColor: theme.primary, opacity: pressed ? 0.9 : 1 },
                     ]}
                     testID="campaign-cta">
-                    <ThemedText type="small" style={styles.campaignCtaText}>
+                    <ThemedText type="small" style={[styles.campaignCtaText, { color: theme.primaryText }]}>
                       {bannerCampaign.variant.ctaLabel}
                     </ThemedText>
                   </Pressable>
@@ -135,7 +143,10 @@ export function HomeRollShell() {
 
             {showOfflineCampaignPlaceholder ? (
               <View
-                style={[styles.campaignPlaceholder, { backgroundColor: theme.backgroundElement }]}
+                style={[
+                  styles.campaignPlaceholder,
+                  { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+                ]}
                 testID="campaign-offline-placeholder">
                 <ThemedText type="small" themeColor="textSecondary">
                   Live campaigns are unavailable offline. Reconnect to refresh challenges and offers.
@@ -195,12 +206,14 @@ export function HomeRollShell() {
                 style={({ pressed }) => [
                   styles.rollButton,
                   {
-                    backgroundColor: currentRoll.completed ? theme.backgroundSelected : theme.text,
+                    backgroundColor: currentRoll.completed ? theme.backgroundSelected : theme.primary,
                     opacity: pressed && !currentRoll.completed ? 0.92 : 1,
                   },
                 ]}
                 testID="complete-button">
-                <ThemedText type="default" style={styles.rollButtonText}>
+                <ThemedText
+                  type="default"
+                  style={[styles.rollButtonText, { color: currentRoll.completed ? theme.text : theme.primaryText }]}>
                   {currentRoll.completed ? 'Completed today' : 'Mark Complete'}
                 </ThemedText>
               </Pressable>
@@ -257,14 +270,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.two,
     borderWidth: 1,
-    borderColor: '#D4D4D8',
   },
   campaignBanner: {
     borderRadius: Spacing.three,
     padding: Spacing.three,
     gap: Spacing.two,
     borderWidth: 1,
-    borderColor: '#D4D4D8',
   },
   campaignActions: {
     flexDirection: 'row',
@@ -284,7 +295,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
   },
   campaignCtaText: {
-    color: '#FFFFFF',
     fontWeight: '600',
   },
   campaignPlaceholder: {
@@ -292,7 +302,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.two,
     borderWidth: 1,
-    borderColor: '#D4D4D8',
   },
   loadingState: {
     alignItems: 'center',
@@ -319,7 +328,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
   },
   rollButtonText: {
-    color: '#FFFFFF',
     fontWeight: '600',
   },
   errorText: {

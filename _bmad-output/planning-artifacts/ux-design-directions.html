@@ -6,12 +6,22 @@
     <title>Habit Dice UX Design Directions</title>
     <style>
       :root {
-        --page: #f4efe6;
-        --ink: #1e2a2b;
-        --muted: #607171;
-        --line: rgba(30, 42, 43, 0.14);
-        --panel: rgba(255, 252, 247, 0.86);
-        --shadow: 0 24px 60px rgba(20, 32, 33, 0.12);
+        --page: #f5efe6;
+        --ink: #223332;
+        --muted: #5f706f;
+        --line: rgba(34, 51, 50, 0.15);
+        --panel: rgba(255, 252, 247, 0.9);
+        --shadow: 0 24px 60px rgba(21, 33, 32, 0.12);
+
+        /* Chosen direction tokens: Direction 01 palette + Direction 03 structure */
+        --chosen-bg: #f7f3ea;
+        --chosen-surface: #fffbf6;
+        --chosen-surface-2: #ece4d7;
+        --chosen-primary: #3d6f69;
+        --chosen-primary-ink: #f6f2ea;
+        --chosen-success: #6f9d79;
+        --chosen-warning: #d8a575;
+        --chosen-error: #c88484;
       }
 
       * {
@@ -240,7 +250,7 @@
         margin-top: 38px;
         border: 1px solid var(--line);
         border-radius: 28px;
-        background: rgba(255, 251, 246, 0.8);
+        background: linear-gradient(180deg, rgba(255, 252, 247, 0.9) 0%, rgba(244, 237, 226, 0.92) 100%);
         box-shadow: var(--shadow);
         padding: 28px;
       }
@@ -259,6 +269,48 @@
         margin: 14px 0 0;
         padding-left: 18px;
       }
+
+      .chosen-palette {
+        margin-top: 18px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.62);
+        padding: 16px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .chosen-palette h4 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+      }
+
+      .swatch {
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 10px 12px;
+        color: #1f2d2d;
+        font-size: 0.82rem;
+        line-height: 1.4;
+      }
+
+      .swatch strong {
+        display: block;
+        font-size: 0.86rem;
+      }
+
+      .swatch-primary { background: var(--chosen-primary); color: var(--chosen-primary-ink); border-color: rgba(0, 0, 0, 0.04); }
+      .swatch-bg { background: var(--chosen-bg); }
+      .swatch-surface { background: var(--chosen-surface-2); }
+      .swatch-success { background: var(--chosen-success); color: #f7f3ea; }
+      .swatch-warning { background: var(--chosen-warning); color: #2f2923; }
+      .swatch-error { background: var(--chosen-error); color: #2f2323; }
 
       .d1::before {
         background: linear-gradient(135deg, rgba(102, 167, 158, 0.45), rgba(255, 211, 170, 0.3));
@@ -538,6 +590,18 @@
           <li>Avoid the heavier atmosphere of Direction 05 for the main product surface, but keep its reveal-staging ideas for motion.</li>
           <li>Avoid making Direction 04 the default because it gets closer to playful-app territory than the product needs.</li>
         </ul>
+
+        <div class="chosen-palette">
+          <h4>Applied Chosen Palette (Direction 01 Foundation)</h4>
+          <div class="swatches">
+            <div class="swatch swatch-bg"><strong>Background</strong>#F7F3EA</div>
+            <div class="swatch swatch-surface"><strong>Surface / Secondary</strong>#ECE4D7</div>
+            <div class="swatch swatch-primary"><strong>Primary CTA / Focus</strong>#3D6F69</div>
+            <div class="swatch swatch-success"><strong>Success</strong>#6F9D79</div>
+            <div class="swatch swatch-warning"><strong>Warning / Reroll</strong>#D8A575</div>
+            <div class="swatch swatch-error"><strong>Error</strong>#C88484</div>
+          </div>
+        </div>
       </section>
     </div>
   </body>

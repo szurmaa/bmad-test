@@ -7,6 +7,7 @@ import NetInfo from '@react-native-community/netinfo';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import AppTabs from '@/components/app-tabs';
+import { Colors } from '@/constants/theme';
 import {
   addCrashBreadcrumb,
   installGlobalCrashHandler,
@@ -20,6 +21,18 @@ import { refreshTaskCatalogIfNeeded } from '@/features/task-catalog-refresh/Task
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
+  const palette = colorScheme === 'dark' ? Colors.dark : Colors.light;
+  const navigationTheme = {
+    ...(colorScheme === 'dark' ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(colorScheme === 'dark' ? DarkTheme.colors : DefaultTheme.colors),
+      background: palette.background,
+      card: palette.backgroundElement,
+      text: palette.text,
+      border: palette.backgroundSelected,
+      primary: palette.primary,
+    },
+  };
 
   React.useEffect(() => {
     installGlobalCrashHandler();
@@ -78,7 +91,7 @@ export default function TabLayout() {
   }, [router]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={navigationTheme}>
       <AnimatedSplashOverlay />
       <AppTabs>
         <Slot />
