@@ -190,10 +190,59 @@ src/
 - Roll creation → completion → days-played increment
 - Offline sync queue processing
 
-**E2E Tests Needed:**
-- Full user flow: app open → see roll → complete → mood log
-- Reroll interaction
-- Return after missed days
+**E2E Tests (WebdriverIO + Appium — implemented in `e2e/`):**
+
+E2E tests run against a real simulator or device using Appium 2 and XCUITest/UiAutomator2.
+They require a **native build** — the Metro bundler alone is not enough.
+
+### First-time setup
+
+```bash
+# Install Appium drivers (one-time)
+cd apps/mobile
+npx appium driver install xcuitest   # iOS
+npx appium driver install uiautomator2  # Android
+```
+
+### iOS end-to-end run
+
+```bash
+cd apps/mobile
+
+# 1. Build the app for the iOS simulator (takes several minutes first time)
+npm run build:ios:sim
+
+# 2. Run all E2E specs against the simulator
+npm run test:e2e:ios
+
+# OR do both steps at once:
+npm run test:e2e:ios:full
+```
+
+The build step runs `expo prebuild` (generates the `ios/` directory) followed by
+`xcodebuild` targeting the `Debug-iphonesimulator` configuration. The resulting
+`.app` is auto-detected by `wdio.config.ts` — no env var needed.
+
+To override the simulator: `IOS_PLATFORM_VERSION=26.1 IOS_DEVICE_NAME="iPhone 17" npm run test:e2e:ios`
+
+### Android end-to-end run
+
+```bash
+cd apps/mobile
+
+# 1. Build the debug APK
+npm run build:android:debug
+
+# 2. Run the specs (connect an emulator/device first)
+npm run test:e2e:android
+```
+
+### Why the simulator doesn't open without a build
+
+Appium needs an `.app` / `.apk` file to install. Providing only a `bundleId`
+tells Appium to activate an *already-installed* app. On a fresh or reset simulator
+there is nothing installed, so nothing opens. The build step solves this by
+producing the binary that Appium installs before launching tests.
 
 ## Files to Review
 
