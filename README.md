@@ -36,12 +36,6 @@ cd ../mobile
 npm run start
 ```
 
-For web preview:
-
-```bash
-npm run web
-```
-
 ## Tests
 
 - Mobile unit/integration tests:
